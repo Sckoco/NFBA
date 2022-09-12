@@ -1,7 +1,13 @@
-const { Client } = require('discord.js');
+const { Client, Collection } = require('discord.js');
 const dotenv = require('dotenv'); dotenv.config();
 const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
+
+// Collections pour regrouper les commandes
+['commands'].forEach(x => client[x] = new Collection());
+
+// Récupérer les différents handlers
+['CommandUtil', 'EventUtil'].forEach(handler => { require(`./utils/handlers/${handler}`)(client) });
 
 client.once('ready', () => {
   console.log("READY");
