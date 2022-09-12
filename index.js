@@ -9,10 +9,6 @@ const Logger = require('./utils/Logger');
 // Récupérer les différents handlers
 ['CommandUtil', 'EventUtil'].forEach(handler => { require(`./utils/handlers/${handler}`)(client) });
 
-client.once('ready', () => {
-  console.log("READY");
-});
-
 // Récupérer les erreurs pour éviter l'arrêt du bot à chaque fois
 process.on('exit', code => { Logger.client(`Le processus s'est arrêté avec le code: ${code} !`) });
 
