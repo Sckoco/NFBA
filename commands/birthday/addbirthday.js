@@ -46,7 +46,7 @@ module.exports = {
       return interaction.reply(`Anniversaire de ${target.user.tag} ajouté au ${date}`);
     } catch(err) {
       Logger.warn(err);
-      return;
+      return interaction.reply("Une erreur s'est produite lors de l'ajout d'un anniversaire ! Veuillez contacter le développeur du bot");
     }
 
     // * Fonction utilisant le format {user, date} pour enregistrer les anniversaires
