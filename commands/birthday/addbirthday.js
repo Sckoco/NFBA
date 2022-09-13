@@ -39,7 +39,7 @@ module.exports = {
       if(!birthdays[date]) {
         birthdays[date] = [target.id];
       } else {
-        birthdays[date] += ","+target.id;
+        birthdays[date].push(target.id);
       }
       const jsonBirthdayToAdd = JSON.stringify(birthdays);
       fs.writeFileSync(filePath, jsonBirthdayToAdd);
