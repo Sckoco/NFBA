@@ -25,7 +25,7 @@ module.exports = {
       required: true
     }
   ],
-  runInteraction(client, interaction) {
+  async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
 
@@ -34,6 +34,10 @@ module.exports = {
     // * Fonction utilisant la date comme clé et les utilisateurs en array
     try {
       const filePath = path.resolve(__dirname, "../../data/birthdays.json");
+      if(!fs.existsSync(filePath)) {
+        fs.mkdirSync(path.join(__dirname, "../../data"));
+        fs.writeFileSync(filePath, "{}");
+      }
       const jsonString = fs.readFileSync(filePath);
       let birthdays = JSON.parse(jsonString);
       if(!birthdays[date]) {
