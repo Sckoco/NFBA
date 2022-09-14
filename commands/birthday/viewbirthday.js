@@ -40,21 +40,30 @@ module.exports = {
       return a[0].localeCompare(b[0]);
     });
 
-    if(!target) {
-      const embed = new EmbedBuilder()
-        .setTitle('🎂 Liste des anniversaires')
-        .setTimestamp()
-        .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
-      
-      let embedDescription = ``; 
+    const embed = new EmbedBuilder()
+      .setTitle('🎂 Liste des anniversaires')
+      .setTimestamp()
+      .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
+
+    let embedDescription = ``;
+    if(!target) {  
       await birthdaysArray.forEach(async bday => {
         bday[1].forEach(async (userId) => {
           const user = await client.users.fetch(userId);
-          embedDescription += `${user.tag} -> ${bday[0]}\n`;
+          embedDescription += `${user.tag} -> \`${bday[0]}\`\n`;
         });
       });
-      embed.setDescription(embedDescription);
-      return interaction.reply({ embeds: [embed] });
+    } else {
+      embed.setTitle(`🎂 L'anniversaire de ${target.user.tag}`);
+      birthdaysArray.forEach(bday => {
+        bday[1].forEach(userId => {
+          if(userId = target.id) {
+            embedDescription = `**${target.user.username}** fête son anniversaire le \`${bday[0]}\``;
+          }
+        });
+      });
     }
+    embed.setDescription(embedDescription);
+    return interaction.reply({ embeds: [embed] });
   }
 }
