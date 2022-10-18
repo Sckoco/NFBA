@@ -36,14 +36,15 @@ module.exports = {
             .setTitle("C'est son anniversaire ! 🎂")
             .setDescription(`Aujourd'hui on fête l'anniversaire de <@${member.user.id}> !
             Souhaitons lui tous une joyeuse vie !`)
+            .setThumbnail("https://media0.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif?cid=ecf05e47sezpy9h9nd7j3bsnvejccv267jxa5z4tllawmr1d&rid=giphy.gif&ct=g")
             
           channel.send({ embeds: [embed] }); 
           break; 
         }
       }
       
-      setTimeout(checkForBirthdays, 1000 * 10); //* TEST
-      //setTimeout(checkForBirthdays, 1000 * 86400);
+      //setTimeout(checkForBirthdays, 1000 * 10); //* TEST
+      setTimeout(checkForBirthdays, 1000 * 86400);
     }
 
     checkForBirthdays()
