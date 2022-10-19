@@ -70,6 +70,7 @@ module.exports = {
         });
       });
     }
+    console.log(embedDescription);
     embed.setDescription(embedDescription);
     return interaction.reply({ embeds: [embed] });
   }
