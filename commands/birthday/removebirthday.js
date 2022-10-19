@@ -41,5 +41,6 @@ module.exports = {
       Logger.warn(err);
       return interaction.reply("Une erreur s'est produite lors de la suppression d'un anniversaire ! Veuillez contacter le développeur du bot");
     }
+    return interaction.reply(`Aucun anniversaire a été enregistré pour ${target.user.tag} !`);
   }
 }
