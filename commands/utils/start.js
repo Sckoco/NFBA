@@ -29,7 +29,7 @@ module.exports = {
       for(const bday in birthdays) {
         const currentDate = new Date();
         if(bday.split('/')[0] == currentDate.getDate() && bday.split('/')[1] == currentDate.getMonth()+1) {
-          const channel = await client.channels.cache.get('741245976731451414');
+          const channel = await client.channels.cache.get('536866056145207326'); // Salon où envoyer les messages d'anniversaire
           for(const memberId in birthdays[bday]) {
             const member = await interaction.guild.members.cache.get(birthdays[bday][memberId]);
             const embed = new EmbedBuilder()
