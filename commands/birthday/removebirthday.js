@@ -30,11 +30,13 @@ module.exports = {
       const jsonString = fs.readFileSync(filePath);
       let birthdays = JSON.parse(jsonString);
       for(const bday in birthdays) {
-        if(birthdays[bday] == target.id) {
-          birthdays[bday].pop(target.id);
-          const newJsonBirthdays = JSON.stringify(birthdays);
-          fs.writeFileSync(filePath, newJsonBirthdays);
-          return interaction.reply(`Anniversaire de ${target.user.tag} supprimé !`);
+        for(const memberId in birthdays[bday]) {
+          if(birthdays[bday][memberId] == target.id) {
+            birthdays[bday][memberId].pop(target.id);
+            const newJsonBirthdays = JSON.stringify(birthdays);
+            fs.writeFileSync(filePath, newJsonBirthdays);
+            return interaction.reply(`Anniversaire de ${target.user.tag} supprimé !`);
+          }
         }
       }
     } catch(err) {
