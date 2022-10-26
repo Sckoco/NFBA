@@ -37,10 +37,12 @@ module.exports = {
       birthdaysArray.push([bday, birthdays[bday]]);
     }
     birthdaysArray.sort((a,b) => {
-      let dayA = a.split('/')[0];
-      let dayB = b.split('/')[0];
-      let monthA = a.split('/')[1];
-      let monthB = b.split('/')[1];
+      let dateA = a[0];
+      let dateB = b[0];
+      let dayA = dateA.split('/')[0];
+      let dayB = dateB.split('/')[0];
+      let monthA = dateA.split('/')[1];
+      let monthB = dateB.split('/')[1];
       if(monthA.localeCompare(monthB) == 0) {
         return dayA.localeCompare(dayB);
       }
