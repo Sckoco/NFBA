@@ -1,5 +1,6 @@
 const { Client, Collection } = require('discord.js');
 const dotenv = require('dotenv'); dotenv.config();
+const mongoose = require('mongoose');
 const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
 
@@ -23,5 +24,14 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 process.on('warning', (...args) => Logger.warn(...args));
+
+mongoose.connect(process.env.DATABASE_URI, {
+  autoIndex: false,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  family: 4
+}).then(() => { Logger.client('- connecté à la base de données') })
+  .catch((err) => { Logger.error(err) });
 
 client.login(process.env.DISCORD_TOKEN);
