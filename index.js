@@ -10,6 +10,9 @@ const Logger = require('./utils/Logger');
 // Récupérer les différents handlers
 ['CommandUtil', 'EventUtil'].forEach(handler => { require(`./utils/handlers/${handler}`)(client) });
 
+// Récupérer le fichier contenant les différentes fonctions
+require('./utils/Functions')(client);
+
 // Récupérer les erreurs pour éviter l'arrêt du bot à chaque fois
 process.on('exit', code => { Logger.client(`Le processus s'est arrêté avec le code: ${code} !`) });
 

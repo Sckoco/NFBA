@@ -1,7 +1,4 @@
 const { ApplicationCommandOptionType, EmbedBuilder, messageLink } = require('discord.js');
-const Logger = require('../../utils/Logger');
-const fs = require('fs');
-const path = require('path');
 
 module.exports = {
   name: 'viewbirthday',
@@ -21,33 +18,6 @@ module.exports = {
   ],
   async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
-    let birthdays = {};
-    
-    try {
-      const filePath = path.resolve(__dirname, "../../data/birthdays.json");
-      const jsonString = fs.readFileSync(filePath);
-      birthdays = JSON.parse(jsonString);
-    } catch(err) {
-      Logger.warn(err);
-      return interaction.reply("Une erreur s'est produite lors de la récupération des anniversaires ! Veuillez contacter le développeur du bot");
-    }
-
-    let birthdaysArray = [];
-    for(const bday in birthdays) {
-      birthdaysArray.push([bday, birthdays[bday]]);
-    }
-    birthdaysArray.sort((a,b) => {
-      let dateA = a[0];
-      let dateB = b[0];
-      let dayA = dateA.split('/')[0];
-      let dayB = dateB.split('/')[0];
-      let monthA = dateA.split('/')[1];
-      let monthB = dateB.split('/')[1];
-      if(monthA.localeCompare(monthB) == 0) {
-        return dayA.localeCompare(dayB);
-      }
-      return monthA.localeCompare(monthB);
-    });
 
     const embed = new EmbedBuilder()
       .setTitle('🎂 Liste des anniversaires')
@@ -55,22 +25,28 @@ module.exports = {
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
     let embedDescription = ``;
-    if(!target) {  
-      await birthdaysArray.forEach(async bday => {
-        bday[1].forEach(async (userId) => {
-          const user = await client.users.fetch(userId);
-          embedDescription += `${user.tag} -> \`${bday[0]}\`\n`;
-        });
+    if(!target) {
+      const birthdays = await client.getAllBirthdays();
+      await birthdays.sort((a,b) => {
+        let dateA = a['date'];
+        let dateB = b['date'];
+        let dayA = dateA.split('/')[0];
+        let dayB = dateB.split('/')[0];
+        let monthA = dateA.split('/')[1];
+        let monthB = dateB.split('/')[1];
+        if(monthA.localeCompare(monthB) == 0) {
+          return dayA.localeCompare(dayB);
+        }
+        return monthA.localeCompare(monthB);
+      });
+      await birthdays.map(async bday => {
+        const user = await client.users.fetch(bday['userID']);
+        embedDescription += `${user.tag} -> \`${bday['date']}\`\n`;
       });
     } else {
       embed.setTitle(`🎂 L'anniversaire de ${target.user.tag}`);
-      birthdaysArray.forEach(bday => {
-        bday[1].forEach(userId => {
-          if(userId = target.id) {
-            embedDescription = `**${target.user.username}** fête son anniversaire le \`${bday[0]}\``;
-          }
-        });
-      });
+      const birthday = await client.getMemberBirthday(target);
+      embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
     }
     embed.setDescription(embedDescription);
     return interaction.reply({ embeds: [embed] });

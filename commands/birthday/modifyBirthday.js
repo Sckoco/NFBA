@@ -1,17 +1,17 @@
 const { ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
-  name: 'addbirthday',
+  name: 'modifybirthday',
   category: 'birthday',
   permissions: ['ADMINISTRATOR'],
   ownerOnly: false,
-  usage: 'addbirthday [@member] [dd/mm]',
-  examples: ['addbirthday @Sckoco 27/12'],
-  description: 'Ajouter un anniversaire',
+  usage: 'modifybirthday [@member] [dd/mm]',
+  examples: ['modifybirthday @Sckoco 27/12'],
+  description: 'Modifier un anniversaire',
   options: [
     {
       name: 'target',
-      description: "L'utilisateur dont on souhaite ajouter l'anniversaire",
+      description: "L'utilisateur dont on souhaite modifier l'anniversaire",
       type: ApplicationCommandOptionType.User,
       required: true
     },
@@ -28,7 +28,7 @@ module.exports = {
 
     // TODO: Ajouter vérification des données
 
-    await client.createBirthday(target, date);
-    return interaction.reply(`Anniversaire de ${target.user.tag} ajouté au ${date}`);
+    await client.updateBirthday(target, {date: date});
+    return interaction.reply(`Anniversaire de ${target.user.tag} modifié au ${date}`);
   }
 }
