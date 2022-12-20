@@ -28,7 +28,7 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('warning', (...args) => Logger.warn(...args));
 
-mongoose.connect(process.env.DATABASE_URI, {
+mongoose.connect(process.env.DATABASE_URI_DEV, {
   autoIndex: false,
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
@@ -37,4 +37,4 @@ mongoose.connect(process.env.DATABASE_URI, {
 }).then(() => { Logger.client('- connecté à la base de données') })
   .catch((err) => { Logger.error(err) });
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN_DEV);
