@@ -18,7 +18,7 @@ module.exports = {
       const birthdays = await client.getBirthdayByDate(date);
 
       birthdays.forEach(async bday => {
-        const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID_DEV);
+        const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID_PROD);
         const member = await interaction.guild.members.cache.get(bday['userID']);
         const embed = new EmbedBuilder()
           .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL() })
