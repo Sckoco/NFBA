@@ -26,9 +26,14 @@ module.exports = {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
 
-    // TODO: Ajouter vérification des données
+    //TODO: Ajouter vérification des données pour la date
 
-    await client.createBirthday(target, date);
-    return interaction.reply(`Anniversaire de ${target.user.tag} ajouté au ${date}`);
+    const birthday = await client.getMemberBirthday(target);
+    if(birthday) {
+      return interaction.reply(`L'anniversaire de ${target.user.tag} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
+    } else {
+      await client.createBirthday(target, date);
+      return interaction.reply(`Anniversaire de ${target.user.tag} ajouté au ${date}`);
+    }
   }
 }
