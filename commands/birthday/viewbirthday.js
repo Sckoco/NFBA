@@ -48,6 +48,7 @@ module.exports = {
       const birthday = await client.getMemberBirthday(target);
       embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
     }
+    console.log(embedDescription);
     embed.setDescription(embedDescription);
     return interaction.reply({ embeds: [embed] });
   }
