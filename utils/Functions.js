@@ -31,4 +31,9 @@ module.exports = client => {
     const birthdaysData = await Birthday.find();
     return birthdaysData;
   }
+
+  client.getBirthdayByDate = async(date) => {
+    const birthdayData = await Birthday.find({ date: date });
+    return birthdayData;
+  }
 }
