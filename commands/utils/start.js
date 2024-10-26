@@ -18,8 +18,8 @@ module.exports = {
       const birthdays = await client.getBirthdayByDate(date);
 
       birthdays.forEach(async bday => {
-        const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID_PROD);
-        const member = await interaction.guild.members.cache.get(bday['userID']);
+        const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID);
+        const member = await interaction.guild.members.cache.get(bday.user_id);
         const embed = new EmbedBuilder()
           .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL() })
           .setTitle("C'est son anniversaire ! 🎂")
@@ -30,8 +30,8 @@ module.exports = {
         channel.send({ embeds: [embed] });
       });
       
-      //setTimeout(checkForBirthdays, 1000 * 10); //* TEST
-      setTimeout(checkForBirthdays, 1000 * 86400);
+      setTimeout(checkForBirthdays, 1000 * 10); //* TEST
+      //setTimeout(checkForBirthdays, 1000 * 86400);
     }
 
     checkForBirthdays()

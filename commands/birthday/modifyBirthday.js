@@ -28,7 +28,7 @@ module.exports = {
 
     // TODO: Ajouter vérification des données
 
-    await client.updateBirthday(target, {date: date});
+    await client.updateBirthday(target, date);
     return interaction.reply(`Anniversaire de ${target.user.tag} modifié au ${date}`);
   }
 }

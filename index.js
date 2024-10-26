@@ -1,8 +1,13 @@
 const { Client, Collection } = require('discord.js');
-const dotenv = require('dotenv'); dotenv.config();
-const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+if (process.env.NODE_ENV === 'development') {
+  dotenv.config({ path: '.env.dev' });
+} else {
+  dotenv.config({ path: '.env.prod' });
+}
 const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
+const db = require('./utils/Database');
 
 // Collections pour regrouper les commandes
 ['commands'].forEach(x => client[x] = new Collection());
@@ -28,13 +33,4 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('warning', (...args) => Logger.warn(...args));
 
-mongoose.connect(process.env.DATABASE_URI_PROD, {
-  autoIndex: false,
-  maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  family: 4
-}).then(() => { Logger.client('- connecté à la base de données') })
-  .catch((err) => { Logger.error(err) });
-
-client.login(process.env.DISCORD_TOKEN_PROD);
+client.login(process.env.DISCORD_TOKEN);

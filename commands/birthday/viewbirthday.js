@@ -40,7 +40,7 @@ module.exports = {
         return monthA.localeCompare(monthB);
       });
       await birthdays.map(async bday => {
-        const user = await client.users.fetch(bday['userID']);
+        const user = await client.users.fetch(bday['user_id']);
         embedDescription += `${user.tag} -> \`${bday['date']}\`\n`;
       });
     } else {
@@ -48,7 +48,6 @@ module.exports = {
       const birthday = await client.getMemberBirthday(target);
       embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
     }
-    console.log(embedDescription);
     embed.setDescription(embedDescription);
     return interaction.reply({ embeds: [embed] });
   }

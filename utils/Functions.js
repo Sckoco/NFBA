@@ -1,39 +1,51 @@
 const { Birthday } = require('../models');
-const { client } = require('./Logger');
+const Logger = require('./Logger');
 
 module.exports = client => {
+
   client.getMemberBirthday = async member => {
-    const birthdayData = await Birthday.findOne({ userID: member.id });
-    return birthdayData;
+    try {
+      const birthday = await Birthday.getMemberBirthday(member.id);
+      return birthday;
+    } catch (err) {
+      Logger.error(`Error saving birtday: ${err}`)
+    }
   }
 
   client.createBirthday = async (member, date) => {
-    const createBirthday = new Birthday({ userID: member.id, date: date });
-    createBirthday.save().then(g => console.log(`Nouvel anniversaire (${g.id})`));
+    const newBirthday = new Birthday(member.id, date);
+    newBirthday.save()
+      .then(() => Logger.client(`Birthday saved! (${member.user.username} - ${member.id})`))
+      .catch((err) => Logger.error(`Error saving birthday: ${err}`));
   }
 
-  client.updateBirthday = async (member, settings) => {
-    let birthdayData = await client.getMemberBirthday(member);
-    if (typeof birthdayData != 'object') birthdayData = {};
-    for (const key in settings) {
-      if (birthdayData[key] != settings[key]) birthdayData[key] = settings[key];
-    }
-    console.log(`Anniversaire modifié ${member.user.tag}`);
-    return birthdayData.updateOne(settings);
+  client.updateBirthday = async (member, date) => {
+    Birthday.updateBirthday(member.id, date)
+      .then(() => Logger.client(`Birthday updated! (${member.user.username} - ${member.id})`))
+      .catch((err) => Logger.error(`Error updating birthday: ${err}`));
   }
   
   client.removeBirthday = async member => {
-    await Birthday.deleteOne({ userID: member.id });
-    console.log(`Anniversaire supprimé ${member.user.tag}`);
+    Birthday.removeBirthday(member.id)
+      .then(() => Logger.client(`Birthday deleted! (${member.user.username} - ${member.id})`))
+      .catch((err) => Logger.error(`Error deleting birthday: ${err}`));
   } 
 
   client.getAllBirthdays = async () => {
-    const birthdaysData = await Birthday.find();
-    return birthdaysData;
+    try {
+      const birthdays = await Birthday.getAllBirthdays();
+      return birthdays;
+    } catch (err) {
+      Logger.error(`Error retrieving all birthdays: ${err}`);
+    }
   }
 
   client.getBirthdayByDate = async(date) => {
-    const birthdayData = await Birthday.find({ date: date });
-    return birthdayData;
+    try {
+      const birthday = await Birthday.getBirthdayByDate(date);
+      return birthday;
+    } catch (err) {
+      Logger.error(`Error retrieving birthday by date: ${err}`);
+    }
   }
 }
