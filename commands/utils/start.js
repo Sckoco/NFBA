@@ -1,7 +1,4 @@
-const Logger = require('../../utils/Logger');
 const { EmbedBuilder } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
 
 module.exports = {
   name: "start",

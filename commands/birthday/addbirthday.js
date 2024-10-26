@@ -26,7 +26,7 @@ module.exports = {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
 
-    //TODO: Ajouter vérification des données pour la date
+    //TODO: Add data verification for date
 
     const birthday = await client.getMemberBirthday(target);
     if(birthday) {

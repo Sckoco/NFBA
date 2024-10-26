@@ -9,16 +9,16 @@ const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
 const db = require('./utils/Database');
 
-// Collections pour regrouper les commandes
+// Collections to regroup commands
 ['commands'].forEach(x => client[x] = new Collection());
 
-// Récupérer les différents handlers
+// Retrieving handlers
 ['CommandUtil', 'EventUtil'].forEach(handler => { require(`./utils/handlers/${handler}`)(client) });
 
-// Récupérer le fichier contenant les différentes fonctions
+// Retrieve the file containing the various functions
 require('./utils/Functions')(client);
 
-// Récupérer les erreurs pour éviter l'arrêt du bot à chaque fois
+// Recover errors to avoid shutting down the bot each time
 process.on('exit', code => { Logger.client(`Le processus s'est arrêté avec le code: ${code} !`) });
 
 process.on('uncaughtException', (err, origin) => { 

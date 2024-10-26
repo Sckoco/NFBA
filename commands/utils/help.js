@@ -33,7 +33,7 @@ module.exports = {
 
       for (const category of commandFolder) {
         noArgsEmbed.addFields([{
-          name: `+ ${category.replace(/(^\w|\s\w)/g, firstLetter => firstLetter.toUpperCase())}`, //Mettre la première lettre en majuscule
+          name: `+ ${category.replace(/(^\w|\s\w)/g, firstLetter => firstLetter.toUpperCase())}`, // Capitalize the first letter
           value: `\`${client.commands.filter(cmd => cmd.category == category.toLowerCase()).map(cmd => cmd.name).join(', ')}\``
         }]);
       }

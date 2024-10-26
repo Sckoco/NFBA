@@ -26,7 +26,7 @@ module.exports = {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
 
-    // TODO: Ajouter vérification des données
+    // TODO: Add data verification
 
     await client.updateBirthday(target, date);
     return interaction.reply(`Anniversaire de ${target.user.tag} modifié au ${date}`);

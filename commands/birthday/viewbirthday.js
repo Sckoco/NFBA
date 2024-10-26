@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType, EmbedBuilder, messageLink } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'viewbirthday',
