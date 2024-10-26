@@ -18,7 +18,7 @@ module.exports = {
         const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID);
         const member = await interaction.guild.members.cache.get(bday.user_id);
         const embed = new EmbedBuilder()
-          .setAuthor({ name: `${member.user.tag}`, iconURL: member.user.displayAvatarURL() })
+          .setAuthor({ name: `${member.user.username}`, iconURL: member.user.displayAvatarURL() })
           .setTitle("C'est son anniversaire ! 🎂")
           .setDescription(`Aujourd'hui on fête l'anniversaire de <@${member.user.id}> !
           Souhaitons lui tous une joyeuse vie !`)

@@ -41,10 +41,10 @@ module.exports = {
       });
       await birthdays.map(async bday => {
         const user = await client.users.fetch(bday['user_id']);
-        embedDescription += `${user.tag} -> \`${bday['date']}\`\n`;
+        embedDescription += `${user.username} -> \`${bday['date']}\`\n`;
       });
     } else {
-      embed.setTitle(`🎂 L'anniversaire de ${target.user.tag}`);
+      embed.setTitle(`🎂 L'anniversaire de ${target.user.username}`);
       const birthday = await client.getMemberBirthday(target);
       embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
     }

@@ -20,6 +20,6 @@ module.exports = {
     const target = interaction.options.getMember('target');
 
     await client.removeBirthday(target);
-    return interaction.reply(`Anniversaire de ${target.user.tag} supprimé !`);
+    return interaction.reply(`Anniversaire de ${target.user.username} supprimé !`);
   }
 }

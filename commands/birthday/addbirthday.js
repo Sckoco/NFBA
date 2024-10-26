@@ -30,10 +30,10 @@ module.exports = {
 
     const birthday = await client.getMemberBirthday(target);
     if(birthday) {
-      return interaction.reply(`L'anniversaire de ${target.user.tag} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
+      return interaction.reply(`L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
     } else {
       await client.createBirthday(target, date);
-      return interaction.reply(`Anniversaire de ${target.user.tag} ajouté au ${date}`);
+      return interaction.reply(`Anniversaire de ${target.user.username} ajouté au ${date}`);
     }
   }
 }
