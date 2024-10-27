@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'modifybirthday',
@@ -25,10 +25,24 @@ module.exports = {
   async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
+    
+    const embed = new EmbedBuilder()
+      .setTimestamp()
+      .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-    // TODO: Ajouter vérification des données
+    // TODO: Add data verification
 
-    await client.updateBirthday(target, {date: date});
-    return interaction.reply(`Anniversaire de ${target.user.tag} modifié au ${date}`);
+    try {
+      await client.updateBirthday(target, date);
+      embed.setColor('Green');
+      embed.setTitle('✅ Anniversaire modifié avec succès');
+      embed.setDescription(`Anniversaire de ${target.user.username} modifié au ${date}`);
+      return interaction.reply({ embeds: [embed] });
+    } catch (err) {
+      embed.setColor('Red');
+      embed.setTitle('❌ Erreur lors de la modification');
+      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`);
+      return interaction.reply({ embeds: [embed] });
+    }
   }
 }
