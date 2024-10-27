@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require("discord.js");
+const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
 
 module.exports = {
   name: 'removebirthday',
@@ -18,8 +18,21 @@ module.exports = {
   ],
   async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
+    const embed = new EmbedBuilder()
+      .setTimestamp()
+      .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-    await client.removeBirthday(target);
-    return interaction.reply(`Anniversaire de ${target.user.username} supprimé !`);
+    try {
+      await client.removeBirthday(target);
+      embed.setColor('Green');
+      embed.setTitle('✅ Anniversaire supprimé avec succès');
+      embed.setDescription(`Anniversaire de ${target.user.username} supprimé !`);
+      return interaction.reply({ embeds: [embed] });
+    } catch (err) {
+      embed.setColor('Red');
+      embed.setTitle('❌ Erreur lors de la suppression');
+      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`)
+      return interaction.reply({ embeds: [embed] });
+    }
   }
 }

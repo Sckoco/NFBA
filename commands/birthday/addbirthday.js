@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'addbirthday',
@@ -26,14 +26,32 @@ module.exports = {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
 
+    const embed = new EmbedBuilder()
+      .setTimestamp()
+      .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
+
+
     //TODO: Add data verification for date
 
-    const birthday = await client.getMemberBirthday(target);
-    if(birthday) {
-      return interaction.reply(`L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
-    } else {
-      await client.createBirthday(target, date);
-      return interaction.reply(`Anniversaire de ${target.user.username} ajouté au ${date}`);
+    try {
+      const birthday = await client.getMemberBirthday(target);
+      if(birthday) {
+        embed.setColor('Yellow');
+        embed.setTitle('Anniversaire déjà existant');
+        embed.setDescription(`L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
+        return interaction.reply({ embeds: [embed] });
+      } else {
+        await client.createBirthday(target, date);
+        embed.setColor('Green');
+        embed.setTitle('✅ Anniversaire ajouté avec succès');
+        embed.setDescription(`Anniversaire de ${target.user.username} ajouté au ${date}`);
+        return interaction.reply({ embeds: [embed] });
+      } 
+    } catch (err) {
+      embed.setColor('Red');
+      embed.setTitle(`❌ Erreur lors de l'ajout`);
+      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`);
+      return interaction.reply({ embeds: [embed] });
     }
   }
 }

@@ -8,28 +8,38 @@ module.exports = client => {
       const birthday = await Birthday.getMemberBirthday(member.id);
       return birthday;
     } catch (err) {
-      Logger.error(`Error saving birtday: ${err}`)
+      Logger.error(`Error retrieving birtday: ${err}`);
+      throw err;
     }
   }
 
   client.createBirthday = async (member, date) => {
     const newBirthday = new Birthday(member.id, date);
-    newBirthday.save()
+    return newBirthday.save()
       .then(() => Logger.client(`Birthday saved! (${member.user.username} - ${member.id})`))
-      .catch((err) => Logger.error(`Error saving birthday: ${err}`));
+      .catch((err) => {
+        Logger.error(`Error saving birthday: ${err}`);
+        throw err;
+      });
   }
 
   client.updateBirthday = async (member, date) => {
-    Birthday.updateBirthday(member.id, date)
+    return Birthday.updateBirthday(member.id, date)
       .then(() => Logger.client(`Birthday updated! (${member.user.username} - ${member.id})`))
-      .catch((err) => Logger.error(`Error updating birthday: ${err}`));
+      .catch((err) => {
+        Logger.error(`Error updating birthday: ${err}`);
+        throw err;
+      });
   }
   
   client.removeBirthday = async member => {
-    Birthday.removeBirthday(member.id)
+    return Birthday.removeBirthday(member.id)
       .then(() => Logger.client(`Birthday deleted! (${member.user.username} - ${member.id})`))
-      .catch((err) => Logger.error(`Error deleting birthday: ${err}`));
-  } 
+      .catch((err) => {
+        Logger.error(`Error deleting birthday: ${err}`);
+        throw err;
+      });
+  }
 
   client.getAllBirthdays = async () => {
     try {
@@ -37,6 +47,7 @@ module.exports = client => {
       return birthdays;
     } catch (err) {
       Logger.error(`Error retrieving all birthdays: ${err}`);
+      throw err;
     }
   }
 
@@ -46,6 +57,7 @@ module.exports = client => {
       return birthday;
     } catch (err) {
       Logger.error(`Error retrieving birthday by date: ${err}`);
+      throw err;
     }
   }
 }
