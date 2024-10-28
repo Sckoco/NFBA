@@ -53,6 +53,8 @@ cron.schedule(process.env.SCHEDULE_TIME, async () => {
         .setThumbnail("https://media0.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif?cid=ecf05e47sezpy9h9nd7j3bsnvejccv267jxa5z4tllawmr1d&rid=giphy.gif&ct=g");
 
       channel.send({ embeds: [embed] });
+    }, {
+      timezone: 'Europe/Brussels'
     });
   } catch (err) {
     Logger.error(`Error while checking birthdays - ${err}`);
