@@ -27,6 +27,10 @@ function client(content) {
   write(content, 'black', 'bgBlue', 'CLIENT', false);
 }
 
+function database(content) {
+  write(content, 'black', 'bgWhite', 'DATABASE', false);
+}
+
 function write(content, tagColor, bgTagColor, tag, error=false) {
   const timestamp = `[${dayjs().format('DD/MM - HH:mm:ss')}]`;
   const logTag = `[${tag}]`;
@@ -40,4 +44,4 @@ function write(content, tagColor, bgTagColor, tag, error=false) {
   stream.write(item);  
 }
 
-module.exports = { error, warn, command, event, typo, client };
+module.exports = { error, warn, command, event, typo, client, database };

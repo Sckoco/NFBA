@@ -1,4 +1,6 @@
-const db = require('../utils/Database');
+const pool = require('../utils/Database');
+const Logger = require('./../utils/Logger');
+const formatString = require('./../utils/QueryUtils');
 
 class Birthday {
   constructor(userID, date) {
@@ -9,7 +11,9 @@ class Birthday {
   save() {
     return new Promise((resolve, reject) => {
       const query = 'INSERT INTO birthdays (user_id, date) VALUES (?, ?)';
-      db.query(query, [this.user_id, this.date], (err, results) => {
+      Logger.database(formatString(query, this.user_id, this.date));
+      Logger
+      pool.query(query, [this.user_id, this.date], (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -22,7 +26,8 @@ class Birthday {
   static getMemberBirthday(userID) {
     return new Promise((resolve, reject) => {
       const query = 'SELECT * FROM birthdays WHERE user_id = ?';
-      db.query(query, [userID], (err, results) => {
+      Logger.database(formatString(query, userID));
+      pool.query(query, [userID], (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -35,7 +40,8 @@ class Birthday {
   static getBirthdayByDate(date) {
     return new Promise((resolve, reject) => {
       const query = 'SELECT * from birthdays WHERE date = ?';
-      db.query(query, [date], (err, results) => {
+      Logger.database(formatString(query, date));
+      pool.query(query, [date], (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -48,7 +54,8 @@ class Birthday {
   static getAllBirthdays() {
     return new Promise((resolve, reject) => {
       const query = 'SELECT * from birthdays';
-      db.query(query, (err, results) => {
+      Logger.database(query);
+      pool.query(query, (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -61,7 +68,8 @@ class Birthday {
   static updateBirthday(userID, newDate) {
     return new Promise((resolve, reject) => {
       const query = 'UPDATE birthdays SET date = ? WHERE user_id = ?';
-      db.query(query, [newDate, userID], (err, results) => {
+      Logger.database(query, newDate, userID);
+      pool.query(query, [newDate, userID], (err, results) => {
         if (err) {
           reject(err);
         } else {
@@ -74,7 +82,8 @@ class Birthday {
   static removeBirthday(userID) {
     return new Promise((resolve, reject) => {
       const query = 'DELETE FROM birthdays WHERE user_id = ?';
-      db.query(query, [userID], (err, results) => {
+      Logger.database(query, userID);
+      pool.query(query, [userID], (err, results) => {
         if (err) {
           reject(err);
         } else {
