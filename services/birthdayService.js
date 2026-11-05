@@ -7,7 +7,7 @@ async function getMemberBirthday(member) {
     const birthday = await Birthday.getMemberBirthday(member.id);
     return birthday;
   } catch (err) {
-    Logger.error(`Error retrieving birtday - ${err}`);
+    Logger.error(`Error retrieving birthday - ${err}`);
     throw err;
   }
 }
