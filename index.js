@@ -5,6 +5,11 @@ const Logger = require('./utils/Logger');
 const db = require('./utils/Database');
 const cron = require('node-cron');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // Collections to regroup commands
 ['commands'].forEach((x) => (client[x] = new Collection()));
@@ -36,13 +41,14 @@ process.on('warning', (...args) => Logger.warn(...args));
 
 client.login(config.discordToken);
 
-cron.schedule(config.scheduleTime, async () => {
-  try {
-    const today = dayjs().format('DD/MM');
-    const birthdays = await client.getBirthdayByDate(today);
+cron.schedule(
+  config.scheduleTime,
+  async () => {
+    try {
+      const today = dayjs().tz(config.timezone).format('DD/MM');
+      const birthdays = await client.getBirthdayByDate(today);
 
-    birthdays.forEach(
-      async (bday) => {
+      birthdays.forEach(async (bday) => {
         const channel = await client.channels.cache.get(config.birthdayChannelId);
         const member = await client.users.cache.get(bday.user_id);
         const embed = new EmbedBuilder()
@@ -57,12 +63,14 @@ cron.schedule(config.scheduleTime, async () => {
           );
 
         channel.send({ embeds: [embed] });
-      },
-      {
-        timezone: 'Europe/Brussels'
-      }
-    );
-  } catch (err) {
-    Logger.error(`Error while checking birthdays - ${err}`);
+      });
+    } catch (err) {
+      Logger.error(`Error while checking birthdays - ${err}`);
+    }
+  },
+  {
+    name: 'birthday-announcement',
+    timezone: config.timezone,
+    noOverlap: true
   }
-});
+);
