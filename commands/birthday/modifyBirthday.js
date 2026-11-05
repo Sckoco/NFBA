@@ -2,9 +2,11 @@ const {
   ApplicationCommandOptionType,
   EmbedBuilder,
   PermissionFlagsBits,
-  InteractionContextType
+  InteractionContextType,
+  MessageFlags
 } = require('discord.js');
 const birthdayService = require('../../services/birthdayService');
+const { parseBirthday, formatBirthday } = require('../../utils/date');
 
 module.exports = {
   name: 'modifybirthday',
@@ -25,20 +27,29 @@ module.exports = {
     },
     {
       name: 'date',
-      description: "La date de l'anniversaire",
+      description: "La date de l'anniversaire, au format JJ/MM (ex. : 27/12)",
       type: ApplicationCommandOptionType.String,
       required: true
     }
   ],
   async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
-    const date = interaction.options.getString('date');
+    const input = interaction.options.getString('date');
 
     const embed = new EmbedBuilder()
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-    // TODO: Add data verification
+    const parsed = parseBirthday(input);
+    if (!parsed) {
+      embed.setColor('Red');
+      embed.setTitle('❌ Date invalide');
+      embed.setDescription(
+        `La date \`${input}\` n'est pas valide. Utilisez le format JJ/MM avec une date qui existe (ex. : \`27/12\` ou \`29/02\`).`
+      );
+      return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+    }
+    const date = formatBirthday(parsed);
 
     try {
       await birthdayService.updateBirthday(target, date);
