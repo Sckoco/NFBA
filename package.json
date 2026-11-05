@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node --env-file=.env.dev index.js",
     "prod": "node --env-file=.env.prod index.js",
+    "test": "node --test",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
