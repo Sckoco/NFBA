@@ -1,9 +1,10 @@
-const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
+const { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
   name: 'addbirthday',
   category: 'birthday',
-  permissions: ['ADMINISTRATOR'],
+  permissions: [PermissionFlagsBits.Administrator],
+  default_member_permissions: PermissionFlagsBits.Administrator,
   ownerOnly: false,
   usage: 'addbirthday [@member] [dd/mm]',
   examples: ['addbirthday @Sckoco 27/12'],

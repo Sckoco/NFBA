@@ -1,4 +1,4 @@
-const { InteractionType } = require('discord.js');
+const { InteractionType, PermissionsBitField } = require('discord.js');
 
 const ownerId = '142368606296997888';
 
@@ -15,9 +15,9 @@ module.exports = {
           return interaction.reply("La seule personne pouvant taper cette commande est l'owner du bot");
       }
 
-      if (!interaction.member.permissions.has([cmd.permissions]))
+      if (!interaction.member.permissions.has(cmd.permissions))
         return interaction.reply({
-          content: `Vous n'avez pas la/les permission(s) requise(s) (\`${cmd.permissions.join(', ')}\`) pour taper cette commande !`,
+          content: `Vous n'avez pas la/les permission(s) requise(s) (\`${new PermissionsBitField(cmd.permissions).toArray().join(', ')}\`) pour taper cette commande !`,
           ephemeral: true
         });
 
