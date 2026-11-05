@@ -1,9 +1,15 @@
-const { ApplicationCommandOptionType, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const {
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  InteractionContextType
+} = require('discord.js');
 
 module.exports = {
   name: 'modifybirthday',
   category: 'birthday',
   permissions: [PermissionFlagsBits.Administrator],
+  contexts: [InteractionContextType.Guild],
   default_member_permissions: PermissionFlagsBits.Administrator,
   ownerOnly: false,
   usage: 'modifybirthday [@member] [dd/mm]',

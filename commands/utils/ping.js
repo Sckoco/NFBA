@@ -1,9 +1,10 @@
-const { EmbedBuilder, PermissionFlagsBits } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits, InteractionContextType } = require('discord.js');
 
 module.exports = {
   name: 'ping',
   category: 'utils',
   permissions: [PermissionFlagsBits.SendMessages],
+  contexts: [InteractionContextType.Guild],
   ownerOnly: false,
   usage: 'ping',
   examples: ['ping'],
