@@ -1,4 +1,4 @@
-const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
+const { EmbedBuilder, ApplicationCommandOptionType, PermissionFlagsBits, PermissionsBitField } = require('discord.js');
 const { readdirSync } = require('fs');
 const commandFolder = readdirSync('./commands');
 
@@ -9,7 +9,7 @@ const contextDescription = {
 module.exports = {
   name: 'help',
   category: 'utils',
-  permissions: ['SEND_MESSAGES'],
+  permissions: [PermissionFlagsBits.SendMessages],
   ownerOnly: false,
   usage: 'help <command>',
   examples: ['help', 'help ping', 'help emit'],
@@ -61,7 +61,7 @@ ${cmd.description ? cmd.description : contextDescription[`${cmd.name}`]}
 
 Utilisation: ${prefix}${cmd.usage}
 Exemples: ${prefix}${cmd.examples.join(` | ${prefix}`)}
-Permissions: ${cmd.permissions.join(', ')}
+Permissions: ${new PermissionsBitField(cmd.permissions).toArray().join(', ')}
 
 ---
 
