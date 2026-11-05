@@ -33,7 +33,7 @@ module.exports = {
     }
   ],
   async runInteraction(client, interaction) {
-    const target = interaction.options.getMember('target');
+    const target = interaction.options.getUser('target');
     const input = interaction.options.getString('date');
 
     const embed = new EmbedBuilder()
@@ -52,12 +52,20 @@ module.exports = {
     const date = formatBirthday(parsed);
 
     try {
-      await birthdayService.updateBirthday(target, parsed);
+      const updated = await birthdayService.updateBirthday(target, parsed);
+      if (!updated) {
+        embed.setColor('Yellow');
+        embed.setTitle('Aucun anniversaire enregistré');
+        embed.setDescription(
+          `Aucun anniversaire enregistré pour ${target.username}. Utilisez la commande \`/addbirthday\` pour l'ajouter.`
+        );
+        return interaction.reply({ embeds: [embed] });
+      }
       embed.setColor('Green');
       embed.setTitle('✅ Anniversaire modifié avec succès');
-      embed.setDescription(`Anniversaire de ${target.user.username} modifié au ${date}`);
+      embed.setDescription(`Anniversaire de ${target.username} modifié au ${date}`);
       return interaction.reply({ embeds: [embed] });
-    } catch (err) {
+    } catch {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la modification');
       embed.setDescription(
