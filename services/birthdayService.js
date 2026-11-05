@@ -12,15 +12,21 @@ async function getMemberBirthday(member) {
   }
 }
 
-async function createBirthday(member, { day, month }) {
-  const newBirthday = new Birthday(member.id, day, month);
-  return newBirthday
-    .save()
-    .then(() => Logger.client(`Birthday saved! (${member.user.username} - ${member.id})`))
-    .catch((err) => {
-      Logger.error(`Error saving birthday - ${err}`);
-      throw err;
-    });
+// Inserts directly and relies on the primary key on user_id, so concurrent calls cannot create duplicates.
+// Returns true if the birthday was created, false if the user already has one.
+async function createBirthday(user, { day, month }) {
+  try {
+    await new Birthday(user.id, day, month).save();
+    Logger.client(`Birthday saved! (${user.username} - ${user.id})`);
+    return true;
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      Logger.warn(`Birthday already exists (${user.username} - ${user.id})`);
+      return false;
+    }
+    Logger.error(`Error saving birthday - ${err}`);
+    throw err;
+  }
 }
 
 async function updateBirthday(member, { day, month }) {
