@@ -12,7 +12,7 @@ class Birthday {
     return new Promise((resolve, reject) => {
       const query = 'INSERT INTO birthdays (user_id, date) VALUES (?, ?)';
       Logger.database(formatString(query, this.user_id, this.date));
-      Logger
+      Logger;
       pool.query(query, [this.user_id, this.date], (err, results) => {
         if (err) {
           reject(err);

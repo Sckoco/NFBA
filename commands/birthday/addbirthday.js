@@ -30,15 +30,16 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-
     //TODO: Add data verification for date
 
     try {
       const birthday = await client.getMemberBirthday(target);
-      if(birthday) {
+      if (birthday) {
         embed.setColor('Yellow');
         embed.setTitle('Anniversaire déjà existant');
-        embed.setDescription(`L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`);
+        embed.setDescription(
+          `L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`
+        );
         return interaction.reply({ embeds: [embed] });
       } else {
         await client.createBirthday(target, date);
@@ -46,12 +47,14 @@ module.exports = {
         embed.setTitle('✅ Anniversaire ajouté avec succès');
         embed.setDescription(`Anniversaire de ${target.user.username} ajouté au ${date}`);
         return interaction.reply({ embeds: [embed] });
-      } 
+      }
     } catch (err) {
       embed.setColor('Red');
       embed.setTitle(`❌ Erreur lors de l'ajout`);
-      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`);
+      embed.setDescription(
+        `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
+      );
       return interaction.reply({ embeds: [embed] });
     }
   }
-}
+};

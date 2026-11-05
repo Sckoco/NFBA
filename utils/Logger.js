@@ -31,7 +31,7 @@ function database(content) {
   write(content, 'black', 'bgWhite', 'DATABASE', false);
 }
 
-function write(content, tagColor, bgTagColor, tag, error=false) {
+function write(content, tagColor, bgTagColor, tag, error = false) {
   const timestamp = `[${dayjs().format('DD/MM - HH:mm:ss')}]`;
   const logTag = `[${tag}]`;
   const stream = error ? process.stderr : process.stdout;
@@ -40,8 +40,8 @@ function write(content, tagColor, bgTagColor, tag, error=false) {
     .replace('{tstamp}', chalk.gray(timestamp))
     .replace('{tag}', chalk[bgTagColor][tagColor](logTag))
     .replace('{txt}', chalk.white(content));
-  
-  stream.write(item);  
+
+  stream.write(item);
 }
 
 module.exports = { error, warn, command, event, typo, client, database };
