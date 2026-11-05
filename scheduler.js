@@ -6,6 +6,7 @@ const timezone = require('dayjs/plugin/timezone');
 const config = require('./config');
 const Logger = require('./utils/Logger');
 const { BIRTHDAY_GIF_URL } = require('./constants');
+const birthdayService = require('./services/birthdayService');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -25,7 +26,7 @@ async function announceBirthday(client, channel, bday) {
 
 async function runBirthdayAnnouncement(client) {
   const today = dayjs().tz(config.timezone).format('DD/MM');
-  const birthdays = await client.getBirthdayByDate(today);
+  const birthdays = await birthdayService.getBirthdayByDate(today);
   if (birthdays.length === 0) return;
 
   const channel = await client.channels.fetch(config.birthdayChannelId).catch(() => null);

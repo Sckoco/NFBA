@@ -4,6 +4,7 @@ const {
   PermissionFlagsBits,
   InteractionContextType
 } = require('discord.js');
+const birthdayService = require('../../services/birthdayService');
 
 module.exports = {
   name: 'modifybirthday',
@@ -40,7 +41,7 @@ module.exports = {
     // TODO: Add data verification
 
     try {
-      await client.updateBirthday(target, date);
+      await birthdayService.updateBirthday(target, date);
       embed.setColor('Green');
       embed.setTitle('✅ Anniversaire modifié avec succès');
       embed.setDescription(`Anniversaire de ${target.user.username} modifié au ${date}`);
