@@ -33,7 +33,7 @@ module.exports = {
     }
   ],
   async runInteraction(client, interaction) {
-    const target = interaction.options.getMember('target');
+    const target = interaction.options.getUser('target');
     const input = interaction.options.getString('date');
 
     const embed = new EmbedBuilder()
@@ -52,22 +52,20 @@ module.exports = {
     const date = formatBirthday(parsed);
 
     try {
-      const birthday = await birthdayService.getMemberBirthday(target);
-      if (birthday) {
+      const created = await birthdayService.createBirthday(target, parsed);
+      if (!created) {
         embed.setColor('Yellow');
         embed.setTitle('Anniversaire déjà existant');
         embed.setDescription(
-          `L'anniversaire de ${target.user.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`
+          `L'anniversaire de ${target.username} est déjà enregistré ! Utiliser la commande \`/modifybirthday\` pour changer la date`
         );
         return interaction.reply({ embeds: [embed] });
-      } else {
-        await birthdayService.createBirthday(target, parsed);
-        embed.setColor('Green');
-        embed.setTitle('✅ Anniversaire ajouté avec succès');
-        embed.setDescription(`Anniversaire de ${target.user.username} ajouté au ${date}`);
-        return interaction.reply({ embeds: [embed] });
       }
-    } catch (err) {
+      embed.setColor('Green');
+      embed.setTitle('✅ Anniversaire ajouté avec succès');
+      embed.setDescription(`Anniversaire de ${target.username} ajouté au ${date}`);
+      return interaction.reply({ embeds: [embed] });
+    } catch {
       embed.setColor('Red');
       embed.setTitle(`❌ Erreur lors de l'ajout`);
       embed.setDescription(
