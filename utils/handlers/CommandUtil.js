@@ -22,43 +22,40 @@ function loadCommand(client, cmdFile) {
   try {
     cmd = require(cmdFile);
   } catch (err) {
-    return Logger.error(`Commande non-chargée: erreur au chargement ↓\nFichier -> ${cmdFile}\n${err?.stack ?? err}`);
+    return Logger.error(`Command not loaded: failed to load ↓\nFile -> ${cmdFile}\n${err?.stack ?? err}`);
   }
 
   // Check if the command has a name
-  if (!cmd.name) return Logger.warn(`Commande non-chargée: pas de nom ↓\nFichier -> ${cmdFile}`);
+  if (!cmd.name) return Logger.warn(`Command not loaded: missing name ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has a description
   if (!cmd.description && cmd.type != ApplicationCommandType.User)
-    return Logger.warn(`Commande non-chargée: pas de description ↓\nFichier -> ${cmdFile}`);
+    return Logger.warn(`Command not loaded: missing description ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has a category
-  if (!cmd.category) return Logger.warn(`Commande non-chargée: pas de catégorie ↓\nFichier -> ${cmdFile}`);
+  if (!cmd.category) return Logger.warn(`Command not loaded: missing category ↓\nFile -> ${cmdFile}`);
 
-  // Check if the order has permission(s)
+  // Check that the permissions are an array
   if (!Array.isArray(cmd.permissions))
-    return Logger.warn(`Commande non-chargée: pas de permission ↓\nFichier -> ${cmdFile}`);
+    return Logger.warn(`Command not loaded: permissions must be an array ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has correctly defined the ownerOnly
-  if (cmd.ownerOnly == undefined)
-    return Logger.warn(`Commande non-chargée: indiquer si la commande est ownerOnly ↓\nFichier -> ${cmdFile}`);
+  if (cmd.ownerOnly == undefined) return Logger.warn(`Command not loaded: ownerOnly must be set ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has a usage
-  if (!cmd.usage) return Logger.warn(`Commande non-chargée: pas d'utilisation (usage) ↓\nFichier -> ${cmdFile}`);
+  if (!cmd.usage) return Logger.warn(`Command not loaded: missing usage ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has examples
-  if (!cmd.examples) return Logger.warn(`Commande non-chargée: pas d'exemples (examples) ↓\nFichier -> ${cmdFile}`);
+  if (!cmd.examples) return Logger.warn(`Command not loaded: missing examples ↓\nFile -> ${cmdFile}`);
 
   // Check if the command has a handler
   if (typeof cmd.runInteraction !== 'function')
-    return Logger.warn(`Commande non-chargée: pas de fonction runInteraction ↓\nFichier -> ${cmdFile}`);
+    return Logger.warn(`Command not loaded: missing runInteraction function ↓\nFile -> ${cmdFile}`);
 
-  // Check whether permission(s) is/are correct
+  // Check that every permission is a PermissionFlagsBits value
   const invalidPermission = cmd.permissions.find((permission) => !permissionList.includes(permission));
   if (invalidPermission !== undefined)
-    return Logger.typo(
-      `Commande non-chargée: erreur de typo sur la permission '${invalidPermission}' ↓\nFichier -> ${cmdFile}`
-    );
+    return Logger.typo(`Command not loaded: invalid permission '${invalidPermission}' ↓\nFile -> ${cmdFile}`);
 
   client.commands.set(cmd.name, cmd);
   Logger.command(`- ${cmd.name}`);

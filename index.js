@@ -14,7 +14,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 });
 
 process.on('exit', (code) => {
-  Logger.client(`Le processus s'est arrêté avec le code: ${code} !`);
+  Logger.client(`Process exited with code ${code}`);
 });
 
 // The process is in an unknown state after an uncaught exception: log it and exit,
