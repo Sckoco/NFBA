@@ -1,15 +1,8 @@
-const { Client, Collection, EmbedBuilder } = require('discord.js');
+const { Client, Collection } = require('discord.js');
 const config = require('./config');
 const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
 const db = require('./utils/Database');
-const cron = require('node-cron');
-const dayjs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const timezone = require('dayjs/plugin/timezone');
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 // Collections to regroup commands
 ['commands'].forEach((x) => (client[x] = new Collection()));
@@ -40,37 +33,3 @@ process.on('unhandledRejection', (reason, promise) => {
 process.on('warning', (...args) => Logger.warn(...args));
 
 client.login(config.discordToken);
-
-cron.schedule(
-  config.scheduleTime,
-  async () => {
-    try {
-      const today = dayjs().tz(config.timezone).format('DD/MM');
-      const birthdays = await client.getBirthdayByDate(today);
-
-      birthdays.forEach(async (bday) => {
-        const channel = await client.channels.cache.get(config.birthdayChannelId);
-        const member = await client.users.cache.get(bday.user_id);
-        const embed = new EmbedBuilder()
-          .setAuthor({ name: member.username, iconURL: member.displayAvatarURL() })
-          .setTitle("C'est son anniversaire ! 🎂")
-          .setDescription(
-            `Aujourd'hui on fête l'anniversaire de <@${member.id}> !
-        Souhaitons lui tous une joyeuse vie !`
-          )
-          .setThumbnail(
-            'https://media0.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif?cid=ecf05e47sezpy9h9nd7j3bsnvejccv267jxa5z4tllawmr1d&rid=giphy.gif&ct=g'
-          );
-
-        channel.send({ embeds: [embed] });
-      });
-    } catch (err) {
-      Logger.error(`Error while checking birthdays - ${err}`);
-    }
-  },
-  {
-    name: 'birthday-announcement',
-    timezone: config.timezone,
-    noOverlap: true
-  }
-);
