@@ -6,7 +6,8 @@ const {
   InteractionContextType
 } = require('discord.js');
 const { readdirSync } = require('fs');
-const commandFolder = readdirSync('./commands');
+const path = require('path');
+const commandFolder = readdirSync(path.join(__dirname, '..'));
 
 const contextDescription = {
   userinfo: "Renvoie des informations sur l'utilisateur"
