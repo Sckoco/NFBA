@@ -1,9 +1,9 @@
 const Logger = require('../../utils/Logger');
-const { ActivityType } = require('discord.js');
+const { ActivityType, Events } = require('discord.js');
 const { startScheduler } = require('../../scheduler');
 
 module.exports = {
-  name: 'ready',
+  name: Events.ClientReady,
   once: true,
   async execute(client) {
     Logger.client('- prêt à être utilisé !');
