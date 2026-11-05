@@ -4,6 +4,7 @@ const {
   PermissionFlagsBits,
   InteractionContextType
 } = require('discord.js');
+const birthdayService = require('../../services/birthdayService');
 
 module.exports = {
   name: 'viewbirthday',
@@ -35,7 +36,7 @@ module.exports = {
     try {
       let embedDescription = ``;
       if (!target) {
-        const birthdays = await client.getAllBirthdays();
+        const birthdays = await birthdayService.getAllBirthdays();
         await birthdays.sort((a, b) => {
           let dateA = a['date'];
           let dateB = b['date'];
@@ -54,7 +55,7 @@ module.exports = {
         });
       } else {
         embed.setTitle(`🎂 L'anniversaire de ${target.user.username}`);
-        const birthday = await client.getMemberBirthday(target);
+        const birthday = await birthdayService.getMemberBirthday(target);
         embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
       }
       embed.setDescription(embedDescription);

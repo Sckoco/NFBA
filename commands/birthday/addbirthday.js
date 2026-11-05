@@ -4,6 +4,7 @@ const {
   PermissionFlagsBits,
   InteractionContextType
 } = require('discord.js');
+const birthdayService = require('../../services/birthdayService');
 
 module.exports = {
   name: 'addbirthday',
@@ -40,7 +41,7 @@ module.exports = {
     //TODO: Add data verification for date
 
     try {
-      const birthday = await client.getMemberBirthday(target);
+      const birthday = await birthdayService.getMemberBirthday(target);
       if (birthday) {
         embed.setColor('Yellow');
         embed.setTitle('Anniversaire déjà existant');
@@ -49,7 +50,7 @@ module.exports = {
         );
         return interaction.reply({ embeds: [embed] });
       } else {
-        await client.createBirthday(target, date);
+        await birthdayService.createBirthday(target, date);
         embed.setColor('Green');
         embed.setTitle('✅ Anniversaire ajouté avec succès');
         embed.setDescription(`Anniversaire de ${target.user.username} ajouté au ${date}`);

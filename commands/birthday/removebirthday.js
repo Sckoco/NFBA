@@ -4,6 +4,7 @@ const {
   PermissionFlagsBits,
   InteractionContextType
 } = require('discord.js');
+const birthdayService = require('../../services/birthdayService');
 
 module.exports = {
   name: 'removebirthday',
@@ -30,7 +31,7 @@ module.exports = {
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
     try {
-      await client.removeBirthday(target);
+      await birthdayService.removeBirthday(target);
       embed.setColor('Green');
       embed.setTitle('✅ Anniversaire supprimé avec succès');
       embed.setDescription(`Anniversaire de ${target.user.username} supprimé !`);

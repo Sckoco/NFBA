@@ -12,9 +12,6 @@ const db = require('./utils/Database');
   require(`./utils/handlers/${handler}`)(client);
 });
 
-// Retrieve the file containing the various functions
-require('./utils/Functions')(client);
-
 // Recover errors to avoid shutting down the bot each time
 process.on('exit', (code) => {
   Logger.client(`Le processus s'est arrêté avec le code: ${code} !`);
