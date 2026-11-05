@@ -10,7 +10,8 @@ module.exports = {
   examples: ['ping'],
   description: "La commande ping renvoie la latence du bot et de l'API",
   async runInteraction(client, interaction) {
-    const tryPong = await interaction.reply({ content: 'On essaye de pong... un instant !', fetchReply: true });
+    const response = await interaction.reply({ content: 'On essaye de pong... un instant !', withResponse: true });
+    const tryPong = response.resource.message;
 
     const embed = new EmbedBuilder()
       .setTitle('🏓 Pong !')
@@ -27,6 +28,6 @@ module.exports = {
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-    interaction.editReply({ content: ' ', embeds: [embed] });
+    await interaction.editReply({ content: ' ', embeds: [embed] });
   }
 };

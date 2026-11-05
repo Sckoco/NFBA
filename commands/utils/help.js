@@ -3,15 +3,9 @@ const {
   ApplicationCommandOptionType,
   PermissionFlagsBits,
   PermissionsBitField,
-  InteractionContextType
+  InteractionContextType,
+  MessageFlags
 } = require('discord.js');
-const { readdirSync } = require('fs');
-const path = require('path');
-const commandFolder = readdirSync(path.join(__dirname, '..'));
-
-const contextDescription = {
-  userinfo: "Renvoie des informations sur l'utilisateur"
-};
 
 module.exports = {
   name: 'help',
@@ -20,7 +14,7 @@ module.exports = {
   contexts: [InteractionContextType.Guild],
   ownerOnly: false,
   usage: 'help <command>',
-  examples: ['help', 'help ping', 'help emit'],
+  examples: ['help', 'help ping'],
   description: 'Renvoie une liste de commandes filtrée par catégorie',
   options: [
     {
@@ -42,30 +36,33 @@ module.exports = {
         }
       ]);
 
-      for (const category of commandFolder) {
+      // Categories of the loaded commands, in load order
+      const categories = [...new Set(client.commands.map((cmd) => cmd.category))];
+
+      for (const category of categories) {
         noArgsEmbed.addFields([
           {
             name: `+ ${category.replace(/(^\w|\s\w)/g, (firstLetter) => firstLetter.toUpperCase())}`, // Capitalize the first letter
             value: `\`${client.commands
-              .filter((cmd) => cmd.category == category.toLowerCase())
+              .filter((cmd) => cmd.category === category)
               .map((cmd) => cmd.name)
               .join(', ')}\``
           }
         ]);
       }
 
-      return interaction.reply({ embeds: [noArgsEmbed], ephemeral: true });
+      return interaction.reply({ embeds: [noArgsEmbed], flags: MessageFlags.Ephemeral });
     }
 
     const cmd = client.commands.get(cmdName);
-    if (!cmd) return interaction.reply({ content: "Cette commande n'existe pas", ephemeral: true });
+    if (!cmd) return interaction.reply({ content: "Cette commande n'existe pas", flags: MessageFlags.Ephemeral });
 
     return interaction.reply({
       content: `
 \`\`\`makefile
 [Help: Commande -> ${cmd.name}] ${cmd.ownerOnly ? '/!\\ Pour les admins du bot uniquement /!\\' : ''}
 
-${cmd.description ? cmd.description : contextDescription[`${cmd.name}`]}
+${cmd.description}
 
 Utilisation: ${prefix}${cmd.usage}
 Exemples: ${prefix}${cmd.examples.join(` | ${prefix}`)}
@@ -77,7 +74,7 @@ Utilisation des slash commands uniquement !
 {} = sous-commande(s) disponible(s) | [] = option(s) obligatoire(s) | <> = option(s) optionnelle(s)
 Ne pas inclure ces caractères => {}, [] et <> dans vos commandes
 \`\`\``,
-      ephemeral: true
+      flags: MessageFlags.Ephemeral
     });
   }
 };
