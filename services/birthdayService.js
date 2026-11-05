@@ -29,22 +29,37 @@ async function createBirthday(user, { day, month }) {
   }
 }
 
-async function updateBirthday(member, { day, month }) {
-  return Birthday.updateBirthday(member.id, day, month)
-    .then(() => Logger.client(`Birthday updated! (${member.user.username} - ${member.id})`))
-    .catch((err) => {
-      Logger.error(`Error updating birthday - ${err}`);
-      throw err;
-    });
+// Returns true if the birthday was updated, false if the user has no birthday registered.
+// mysql2 enables FOUND_ROWS by default, so affectedRows counts matched rows: setting the same date again still returns true.
+async function updateBirthday(user, { day, month }) {
+  try {
+    const { affectedRows } = await Birthday.updateBirthday(user.id, day, month);
+    if (affectedRows === 0) {
+      Logger.warn(`No birthday to update (${user.username} - ${user.id})`);
+      return false;
+    }
+    Logger.client(`Birthday updated! (${user.username} - ${user.id})`);
+    return true;
+  } catch (err) {
+    Logger.error(`Error updating birthday - ${err}`);
+    throw err;
+  }
 }
 
-async function removeBirthday(member) {
-  return Birthday.removeBirthday(member.id)
-    .then(() => Logger.client(`Birthday deleted! (${member.user.username} - ${member.id})`))
-    .catch((err) => {
-      Logger.error(`Error deleting birthday - ${err}`);
-      throw err;
-    });
+// Returns true if the birthday was deleted, false if the user has no birthday registered.
+async function removeBirthday(user) {
+  try {
+    const { affectedRows } = await Birthday.removeBirthday(user.id);
+    if (affectedRows === 0) {
+      Logger.warn(`No birthday to delete (${user.username} - ${user.id})`);
+      return false;
+    }
+    Logger.client(`Birthday deleted! (${user.username} - ${user.id})`);
+    return true;
+  } catch (err) {
+    Logger.error(`Error deleting birthday - ${err}`);
+    throw err;
+  }
 }
 
 async function getAllBirthdays() {
