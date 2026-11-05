@@ -61,7 +61,7 @@ module.exports = {
         );
         return interaction.reply({ embeds: [embed] });
       } else {
-        await birthdayService.createBirthday(target, date);
+        await birthdayService.createBirthday(target, parsed);
         embed.setColor('Green');
         embed.setTitle('✅ Anniversaire ajouté avec succès');
         embed.setDescription(`Anniversaire de ${target.user.username} ajouté au ${date}`);

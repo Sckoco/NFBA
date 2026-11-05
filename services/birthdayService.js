@@ -1,5 +1,6 @@
 const { Birthday } = require('../models');
 const Logger = require('../utils/Logger');
+const { birthdaysCelebratedOn } = require('../utils/date');
 
 async function getMemberBirthday(member) {
   try {
@@ -11,8 +12,8 @@ async function getMemberBirthday(member) {
   }
 }
 
-async function createBirthday(member, date) {
-  const newBirthday = new Birthday(member.id, date);
+async function createBirthday(member, { day, month }) {
+  const newBirthday = new Birthday(member.id, day, month);
   return newBirthday
     .save()
     .then(() => Logger.client(`Birthday saved! (${member.user.username} - ${member.id})`))
@@ -22,8 +23,8 @@ async function createBirthday(member, date) {
     });
 }
 
-async function updateBirthday(member, date) {
-  return Birthday.updateBirthday(member.id, date)
+async function updateBirthday(member, { day, month }) {
+  return Birthday.updateBirthday(member.id, day, month)
     .then(() => Logger.client(`Birthday updated! (${member.user.username} - ${member.id})`))
     .catch((err) => {
       Logger.error(`Error updating birthday - ${err}`);
@@ -50,12 +51,13 @@ async function getAllBirthdays() {
   }
 }
 
-async function getBirthdayByDate(date) {
+// Returns the birthdays to celebrate on a calendar date ({ day, month, year }), including the 29/02 rule.
+async function getBirthdaysCelebratedOn(date) {
   try {
-    const birthday = await Birthday.getBirthdayByDate(date);
-    return birthday;
+    const birthdays = await Birthday.getBirthdaysByDates(birthdaysCelebratedOn(date));
+    return birthdays;
   } catch (err) {
-    Logger.error(`Error retrieving birthday by date - ${err}`);
+    Logger.error(`Error retrieving birthdays by date - ${err}`);
     throw err;
   }
 }
@@ -66,5 +68,5 @@ module.exports = {
   updateBirthday,
   removeBirthday,
   getAllBirthdays,
-  getBirthdayByDate
+  getBirthdaysCelebratedOn
 };

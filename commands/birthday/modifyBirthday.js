@@ -52,7 +52,7 @@ module.exports = {
     const date = formatBirthday(parsed);
 
     try {
-      await birthdayService.updateBirthday(target, date);
+      await birthdayService.updateBirthday(target, parsed);
       embed.setColor('Green');
       embed.setTitle('✅ Anniversaire modifié avec succès');
       embed.setDescription(`Anniversaire de ${target.user.username} modifié au ${date}`);
