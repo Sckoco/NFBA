@@ -49,6 +49,8 @@ const config = {
   birthdayChannelId: snowflake('BIRTHDAY_CHANNEL_ID'),
   scheduleTime: cronExpression('SCHEDULE_TIME'),
   timezone: timezone('TIMEZONE', 'Europe/Brussels'),
+  // Opt-in, so that an unset NODE_ENV never enables development-only behaviour (e.g. query logs) in production.
+  isDevelopment: process.env.NODE_ENV?.trim() === 'development',
   db: Object.freeze({
     host: required('DB_HOST'),
     user: required('DB_USER'),
