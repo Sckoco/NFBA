@@ -1,5 +1,6 @@
 const Logger = require('../../utils/Logger');
 const { ActivityType } = require('discord.js');
+const { startScheduler } = require('../../scheduler');
 
 module.exports = {
   name: 'ready',
@@ -15,5 +16,8 @@ module.exports = {
 
     // Slash commands en global = 1h minimum
     client.application.commands.set(client.commands.map((cmd) => cmd));
+
+    // Start the daily birthday job only once the client is connected
+    startScheduler(client);
   }
 };
