@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development node index.js",
-    "prod": "cross-env NODE_ENV=production node index.js"
+    "prod": "cross-env NODE_ENV=production node index.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "engines": {
     "node": "22.x"
@@ -22,5 +25,12 @@
     "glob": "7.2.0",
     "mysql2": "^3.11.3",
     "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10"
   }
 }

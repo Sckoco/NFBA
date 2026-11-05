@@ -25,7 +25,7 @@ module.exports = {
   async runInteraction(client, interaction) {
     const target = interaction.options.getMember('target');
     const date = interaction.options.getString('date');
-    
+
     const embed = new EmbedBuilder()
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
@@ -41,8 +41,10 @@ module.exports = {
     } catch (err) {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la modification');
-      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`);
+      embed.setDescription(
+        `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
+      );
       return interaction.reply({ embeds: [embed] });
     }
   }
-}
+};

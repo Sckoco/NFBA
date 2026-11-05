@@ -1,11 +1,11 @@
-const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
+const { ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
   name: 'removebirthday',
   category: 'birthday',
   permissions: ['ADMINISTRATOR'],
   ownerOnly: false,
-  usage : 'removebirthday [@member]',
+  usage: 'removebirthday [@member]',
   examples: ['removebirthday @Sckoco'],
   description: 'Supprimer un anniversaire',
   options: [
@@ -31,8 +31,10 @@ module.exports = {
     } catch (err) {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la suppression');
-      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`)
+      embed.setDescription(
+        `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
+      );
       return interaction.reply({ embeds: [embed] });
     }
   }
-}
+};

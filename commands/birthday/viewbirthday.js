@@ -7,7 +7,7 @@ module.exports = {
   ownerOnly: false,
   usage: 'viewbirthday <@member>',
   examples: ['viewbirthday @Sckoco 27/12'],
-  description: 'Voir la liste des anniversaires ou celui d\'un membre',
+  description: "Voir la liste des anniversaires ou celui d'un membre",
   options: [
     {
       name: 'target',
@@ -27,21 +27,21 @@ module.exports = {
 
     try {
       let embedDescription = ``;
-      if(!target) {
+      if (!target) {
         const birthdays = await client.getAllBirthdays();
-        await birthdays.sort((a,b) => {
+        await birthdays.sort((a, b) => {
           let dateA = a['date'];
           let dateB = b['date'];
           let dayA = dateA.split('/')[0];
           let dayB = dateB.split('/')[0];
           let monthA = dateA.split('/')[1];
           let monthB = dateB.split('/')[1];
-          if(monthA.localeCompare(monthB) == 0) {
+          if (monthA.localeCompare(monthB) == 0) {
             return dayA.localeCompare(dayB);
           }
           return monthA.localeCompare(monthB);
         });
-        await birthdays.map(async bday => {
+        await birthdays.map(async (bday) => {
           const user = await client.users.fetch(bday['user_id']);
           embedDescription += `${user.username} -> \`${bday['date']}\`\n`;
         });
@@ -55,8 +55,10 @@ module.exports = {
     } catch (err) {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la recherche');
-      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`)
+      embed.setDescription(
+        `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
+      );
       return interaction.reply({ embeds: [embed] });
     }
   }
-}
+};
