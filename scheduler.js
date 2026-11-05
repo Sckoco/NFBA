@@ -25,8 +25,9 @@ async function announceBirthday(client, channel, bday) {
 }
 
 async function runBirthdayAnnouncement(client) {
-  const today = dayjs().tz(config.timezone).format('DD/MM');
-  const birthdays = await birthdayService.getBirthdayByDate(today);
+  const now = dayjs().tz(config.timezone);
+  const today = { day: now.date(), month: now.month() + 1, year: now.year() };
+  const birthdays = await birthdayService.getBirthdaysCelebratedOn(today);
   if (birthdays.length === 0) return;
 
   const channel = await client.channels.fetch(config.birthdayChannelId).catch(() => null);

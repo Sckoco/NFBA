@@ -5,6 +5,7 @@ const {
   InteractionContextType
 } = require('discord.js');
 const birthdayService = require('../../services/birthdayService');
+const { formatBirthday } = require('../../utils/date');
 
 module.exports = {
   name: 'viewbirthday',
@@ -37,26 +38,14 @@ module.exports = {
       let embedDescription = ``;
       if (!target) {
         const birthdays = await birthdayService.getAllBirthdays();
-        await birthdays.sort((a, b) => {
-          let dateA = a['date'];
-          let dateB = b['date'];
-          let dayA = dateA.split('/')[0];
-          let dayB = dateB.split('/')[0];
-          let monthA = dateA.split('/')[1];
-          let monthB = dateB.split('/')[1];
-          if (monthA.localeCompare(monthB) == 0) {
-            return dayA.localeCompare(dayB);
-          }
-          return monthA.localeCompare(monthB);
-        });
         await birthdays.map(async (bday) => {
           const user = await client.users.fetch(bday['user_id']);
-          embedDescription += `${user.username} -> \`${bday['date']}\`\n`;
+          embedDescription += `${user.username} -> \`${formatBirthday(bday)}\`\n`;
         });
       } else {
         embed.setTitle(`🎂 L'anniversaire de ${target.user.username}`);
         const birthday = await birthdayService.getMemberBirthday(target);
-        embedDescription = `**${target.user.username}** fête son anniversaire le \`${birthday['date']}\``;
+        embedDescription = `**${target.user.username}** fête son anniversaire le \`${formatBirthday(birthday)}\``;
       }
       embed.setDescription(embedDescription);
       return interaction.reply({ embeds: [embed] });
