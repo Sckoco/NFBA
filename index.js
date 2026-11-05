@@ -1,10 +1,5 @@
 const { Client, Collection, EmbedBuilder } = require('discord.js');
-const dotenv = require('dotenv');
-if (process.env.NODE_ENV === 'development') {
-  dotenv.config({ path: '.env.dev' });
-} else {
-  dotenv.config({ path: '.env.prod' });
-}
+const config = require('./config');
 const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
 const db = require('./utils/Database');
@@ -39,16 +34,16 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('warning', (...args) => Logger.warn(...args));
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(config.discordToken);
 
-cron.schedule(process.env.SCHEDULE_TIME, async () => {
+cron.schedule(config.scheduleTime, async () => {
   try {
     const today = dayjs().format('DD/MM');
     const birthdays = await client.getBirthdayByDate(today);
 
     birthdays.forEach(
       async (bday) => {
-        const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID);
+        const channel = await client.channels.cache.get(config.birthdayChannelId);
         const member = await client.users.cache.get(bday.user_id);
         const embed = new EmbedBuilder()
           .setAuthor({ name: member.username, iconURL: member.displayAvatarURL() })
