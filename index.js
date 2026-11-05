@@ -1,8 +1,9 @@
-const { Client, Collection } = require('discord.js');
+const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const config = require('./config');
-const client = new Client({ intents: 3276799 });
 const Logger = require('./utils/Logger');
-const db = require('./utils/Database');
+
+// Interactions and REST fetches (users, channels) only need the Guilds intent
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Collections to regroup commands
 ['commands'].forEach((x) => (client[x] = new Collection()));
@@ -12,19 +13,21 @@ const db = require('./utils/Database');
   require(`./utils/handlers/${handler}`)(client);
 });
 
-// Recover errors to avoid shutting down the bot each time
 process.on('exit', (code) => {
   Logger.client(`Le processus s'est arrêté avec le code: ${code} !`);
 });
 
+// The process is in an unknown state after an uncaught exception: log it and exit,
+// and let the process manager (pm2, systemd, Docker) restart the bot
 process.on('uncaughtException', (err, origin) => {
-  Logger.error(`UNCAUGHT EXCEPTION - ${err}`);
-  console.error(`Origine: ${origin}`);
+  Logger.error(`UNCAUGHT EXCEPTION (${origin})`);
+  console.error(err);
+  process.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  Logger.warn(`UNHANDLED REJECTION: ${reason}`);
-  console.log(promise);
+process.on('unhandledRejection', (reason) => {
+  Logger.error('UNHANDLED REJECTION');
+  console.error(reason instanceof Error ? reason.stack : reason);
 });
 
 process.on('warning', (...args) => Logger.warn(...args));
