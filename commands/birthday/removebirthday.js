@@ -1,11 +1,19 @@
-const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
+const {
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+  PermissionFlagsBits,
+  InteractionContextType
+} = require('discord.js');
+const birthdayService = require('../../services/birthdayService');
 
 module.exports = {
   name: 'removebirthday',
   category: 'birthday',
-  permissions: ['ADMINISTRATOR'],
+  permissions: [PermissionFlagsBits.Administrator],
+  contexts: [InteractionContextType.Guild],
+  default_member_permissions: PermissionFlagsBits.Administrator,
   ownerOnly: false,
-  usage : 'removebirthday [@member]',
+  usage: 'removebirthday [@member]',
   examples: ['removebirthday @Sckoco'],
   description: 'Supprimer un anniversaire',
   options: [
@@ -17,22 +25,30 @@ module.exports = {
     }
   ],
   async runInteraction(client, interaction) {
-    const target = interaction.options.getMember('target');
+    const target = interaction.options.getUser('target');
     const embed = new EmbedBuilder()
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
     try {
-      await client.removeBirthday(target);
+      const removed = await birthdayService.removeBirthday(target);
+      if (!removed) {
+        embed.setColor('Yellow');
+        embed.setTitle('Aucun anniversaire enregistré');
+        embed.setDescription(`Aucun anniversaire enregistré pour ${target.username}.`);
+        return interaction.reply({ embeds: [embed] });
+      }
       embed.setColor('Green');
       embed.setTitle('✅ Anniversaire supprimé avec succès');
-      embed.setDescription(`Anniversaire de ${target.user.username} supprimé !`);
+      embed.setDescription(`Anniversaire de ${target.username} supprimé !`);
       return interaction.reply({ embeds: [embed] });
-    } catch (err) {
+    } catch {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la suppression');
-      embed.setDescription(`Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`)
+      embed.setDescription(
+        `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
+      );
       return interaction.reply({ embeds: [embed] });
     }
   }
-}
+};

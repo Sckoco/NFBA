@@ -1,26 +1,47 @@
-const { promisify } = require('util');
-const { glob } = require('glob');
-const pGLob = promisify(glob);
+const { readdirSync } = require('fs');
+const path = require('path');
+const { Events } = require('discord.js');
 const Logger = require('../Logger');
 
-module.exports = async client => {
-  (await pGLob(`${process.cwd()}/events/*/*.js`)).map(async (eventFile) => {
-    const event = require(eventFile);
+const eventsDir = path.join(__dirname, '..', '..', 'events');
+const eventList = Object.values(Events);
 
-    if (!event.name) return Logger.warn(`Evènement non déclenché: pas de nom ↓\nFichier -> ${eventFile}`);
+// Returns the paths of every events/<emitter>/*.js file
+function listEventFiles() {
+  return readdirSync(eventsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((dir) =>
+      readdirSync(path.join(eventsDir, dir.name))
+        .filter((file) => file.endsWith('.js'))
+        .map((file) => path.join(eventsDir, dir.name, file))
+    );
+}
 
-    if(!eventList.includes(event.name)) {
-      return Logger.typo(`Evènement non-déclenché: erreur de typo ↓\nFichier -> ${eventFile}`);
-    }
+function loadEvent(client, eventFile) {
+  let event;
+  try {
+    event = require(eventFile);
+  } catch (err) {
+    return Logger.error(`Event not registered: failed to load ↓\nFile -> ${eventFile}\n${err?.stack ?? err}`);
+  }
 
-    if (event.once) {
-      client.once(event.name, (...args) => event.execute(client, ...args));
-    } else {
-      client.on(event.name, (...args) => event.execute(client, ...args));
-    }
+  if (!event.name) return Logger.warn(`Event not registered: missing name ↓\nFile -> ${eventFile}`);
 
-    Logger.event(`- ${event.name}`);
-  });
+  if (!eventList.includes(event.name))
+    return Logger.typo(`Event not registered: unknown event name '${event.name}' ↓\nFile -> ${eventFile}`);
+
+  if (typeof event.execute !== 'function')
+    return Logger.warn(`Event not registered: missing execute function ↓\nFile -> ${eventFile}`);
+
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(client, ...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(client, ...args));
+  }
+
+  Logger.event(`- ${event.name}`);
+}
+
+module.exports = (client) => {
+  for (const eventFile of listEventFiles()) loadEvent(client, eventFile);
 };
-
-const eventList = ['apiRequest', 'apiResponse', 'applicationCommandCreateD', 'applicationCommandDeleteD', 'applicationCommandUpdateD', 'channelCreate', 'channelDelete', 'channelPinsUpdate', 'channelUpdate', 'debug', 'emojiCreate', 'emojiDelete', 'emojiUpdate', 'error', 'guildBanAdd', 'guildBanRemove', 'guildCreate', 'guildDelete', 'guildIntegrationsUpdate', 'guildMemberAdd', 'guildMemberAvailable', 'guildMemberRemove', 'guildMembersChunk', 'guildMemberUpdate', 'guildScheduledEventCreate', 'guildScheduledEventDelete', 'guildScheduledEventUpdate', 'guildScheduledEventUserAdd', 'guildScheduledEventUserRemove', 'guildUnavailable', 'guildUpdate', 'interactionD', 'interactionCreate', 'invalidated', 'invalidRequestWarning', 'inviteCreate', 'inviteDelete', 'messageD', 'messageCreate', 'messageDelete', 'messageDeleteBulk', 'messageReactionAdd', 'messageReactionRemove', 'messageReactionRemoveAll', 'messageReactionRemoveEmoji', 'messageUpdate', 'presenceUpdate', 'rateLimit', 'ready', 'roleCreate', 'roleDelete', 'roleUpdate', 'shardDisconnect', 'shardError', 'shardReady', 'shardReconnecting', 'shardResume', 'stageInstanceCreate', 'stageInstanceDelete', 'stageInstanceUpdate', 'stickerCreate', 'stickerDelete', 'stickerUpdate', 'threadCreate', 'threadDelete', 'threadListSync', 'threadMembersUpdate', 'threadMemberUpdate', 'threadUpdate', 'typingStart', 'userUpdate', 'voiceStateUpdate', 'warn', 'webhookUpdate'];

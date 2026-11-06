@@ -1,4 +1,7 @@
+.env
 .env.prod
 .env.dev
-package-lock.json
 node_modules/
+CLAUDE.md
+.claude/
+.vscode/

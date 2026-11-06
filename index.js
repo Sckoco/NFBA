@@ -1,62 +1,35 @@
-const { Client, Collection, EmbedBuilder } = require('discord.js');
-const dotenv = require('dotenv');
-if (process.env.NODE_ENV === 'development') {
-  dotenv.config({ path: '.env.dev' });
-} else {
-  dotenv.config({ path: '.env.prod' });
-}
-const client = new Client({ intents: 3276799 });
+const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const config = require('./config');
 const Logger = require('./utils/Logger');
-const db = require('./utils/Database');
-const cron = require('node-cron');
-const dayjs = require('dayjs');
+
+// Interactions and REST fetches (users, channels) only need the Guilds intent
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Collections to regroup commands
-['commands'].forEach(x => client[x] = new Collection());
+['commands'].forEach((x) => (client[x] = new Collection()));
 
 // Retrieving handlers
-['CommandUtil', 'EventUtil'].forEach(handler => { require(`./utils/handlers/${handler}`)(client) });
-
-// Retrieve the file containing the various functions
-require('./utils/Functions')(client);
-
-// Recover errors to avoid shutting down the bot each time
-process.on('exit', code => { Logger.client(`Le processus s'est arrêté avec le code: ${code} !`) });
-
-process.on('uncaughtException', (err, origin) => { 
-  Logger.error(`UNCAUGHT EXCEPTION - ${err}`);
-  console.error(`Origine: ${origin}`);
+['CommandUtil', 'EventUtil'].forEach((handler) => {
+  require(`./utils/handlers/${handler}`)(client);
 });
 
-process.on('unhandledRejection', (reason, promise) => { 
-  Logger.warn(`UNHANDLED REJECTION: ${reason}`);
-  console.log(promise);
+process.on('exit', (code) => {
+  Logger.client(`Process exited with code ${code}`);
+});
+
+// The process is in an unknown state after an uncaught exception: log it and exit,
+// and let the process manager (pm2, systemd, Docker) restart the bot
+process.on('uncaughtException', (err, origin) => {
+  Logger.error(`UNCAUGHT EXCEPTION (${origin})`);
+  console.error(err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  Logger.error('UNHANDLED REJECTION');
+  console.error(reason instanceof Error ? reason.stack : reason);
 });
 
 process.on('warning', (...args) => Logger.warn(...args));
 
-client.login(process.env.DISCORD_TOKEN);
-
-cron.schedule(process.env.SCHEDULE_TIME, async () => {
-  try {
-    const today = dayjs().format('DD/MM');
-    const birthdays = await client.getBirthdayByDate(today);
-
-    birthdays.forEach(async bday => {
-      const channel = await client.channels.cache.get(process.env.BIRTHDAY_CHANNEL_ID);
-      const member = await client.users.cache.get(bday.user_id);
-      const embed = new EmbedBuilder()
-        .setAuthor({ name: member.username, iconURL: member.displayAvatarURL()})
-        .setTitle("C'est son anniversaire ! 🎂")
-        .setDescription(`Aujourd'hui on fête l'anniversaire de <@${member.id}> !
-        Souhaitons lui tous une joyeuse vie !`)
-        .setThumbnail("https://media0.giphy.com/media/g5R9dok94mrIvplmZd/giphy.gif?cid=ecf05e47sezpy9h9nd7j3bsnvejccv267jxa5z4tllawmr1d&rid=giphy.gif&ct=g");
-
-      channel.send({ embeds: [embed] });
-    }, {
-      timezone: 'Europe/Brussels'
-    });
-  } catch (err) {
-    Logger.error(`Error while checking birthdays - ${err}`);
-  }
-});
+client.login(config.discordToken);

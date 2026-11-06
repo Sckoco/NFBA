@@ -1,15 +1,17 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, PermissionFlagsBits, InteractionContextType } = require('discord.js');
 
 module.exports = {
-  name: "ping",
+  name: 'ping',
   category: 'utils',
-  permissions: ['SEND_MESSAGES'],
+  permissions: [PermissionFlagsBits.SendMessages],
+  contexts: [InteractionContextType.Guild],
   ownerOnly: false,
   usage: 'ping',
   examples: ['ping'],
   description: "La commande ping renvoie la latence du bot et de l'API",
   async runInteraction(client, interaction) {
-    const tryPong = await interaction.reply({ content: "On essaye de pong... un instant !", fetchReply: true }); 
+    const response = await interaction.reply({ content: 'On essaye de pong... un instant !', withResponse: true });
+    const tryPong = response.resource.message;
 
     const embed = new EmbedBuilder()
       .setTitle('🏓 Pong !')
@@ -17,12 +19,15 @@ module.exports = {
       // .addField('Latence', client.ws.ping, true)
       .addFields(
         { name: 'Latence API', value: `\`\`\`${client.ws.ping}ms\`\`\``, inline: true },
-        { name: 'Latence BOT', value: `\`\`\`${tryPong.createdTimestamp - interaction.createdTimestamp}ms\`\`\``, inline: true }
+        {
+          name: 'Latence BOT',
+          value: `\`\`\`${tryPong.createdTimestamp - interaction.createdTimestamp}ms\`\`\``,
+          inline: true
+        }
       )
       .setTimestamp()
       .setFooter({ text: interaction.user.username, iconURL: interaction.user.displayAvatarURL() });
 
-
-    interaction.editReply({ content: ' ', embeds: [embed] });
-  },
+    await interaction.editReply({ content: ' ', embeds: [embed] });
+  }
 };

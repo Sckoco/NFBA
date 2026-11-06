@@ -1,44 +1,66 @@
-const { promisify } = require('util');
-const { glob } = require('glob');
-const pGLob = promisify(glob);
+const { readdirSync } = require('fs');
+const path = require('path');
 const Logger = require('../Logger');
-const { ApplicationCommandType } = require('discord.js');
+const { ApplicationCommandType, PermissionFlagsBits } = require('discord.js');
 
-module.exports = async client => {
-  (await pGLob(`${process.cwd()}/commands/*/*.js`)).map(async (cmdFile) => {
-    const cmd = require(cmdFile);
+const commandsDir = path.join(__dirname, '..', '..', 'commands');
+const permissionList = Object.values(PermissionFlagsBits);
 
-    // Check if the command has a name
-    if(!cmd.name) return Logger.warn(`Commande non-chargée: pas de nom ↓\nFichier -> ${cmdFile}`);
+// Returns the paths of every commands/<category>/*.js file
+function listCommandFiles() {
+  return readdirSync(commandsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((dir) =>
+      readdirSync(path.join(commandsDir, dir.name))
+        .filter((file) => file.endsWith('.js'))
+        .map((file) => path.join(commandsDir, dir.name, file))
+    );
+}
 
-    // Check if the command has a description
-    if (!cmd.description && cmd.type != ApplicationCommandType.User) return Logger.warn(`Commande non-chargée: pas de description ↓\nFichier -> ${cmdFile}`);
+function loadCommand(client, cmdFile) {
+  let cmd;
+  try {
+    cmd = require(cmdFile);
+  } catch (err) {
+    return Logger.error(`Command not loaded: failed to load ↓\nFile -> ${cmdFile}\n${err?.stack ?? err}`);
+  }
 
-    // Check if the command has a category
-    if (!cmd.category) return Logger.warn(`Commande non-chargée: pas de catégorie ↓\nFichier -> ${cmdFile}`);
+  // Check if the command has a name
+  if (!cmd.name) return Logger.warn(`Command not loaded: missing name ↓\nFile -> ${cmdFile}`);
 
-    // Check if the order has permission(s)
-    if (!cmd.permissions) return Logger.warn(`Commande non-chargée: pas de permission ↓\nFichier -> ${cmdFile}`);
+  // Check if the command has a description
+  if (!cmd.description && cmd.type != ApplicationCommandType.User)
+    return Logger.warn(`Command not loaded: missing description ↓\nFile -> ${cmdFile}`);
 
-    // Check if the command has correctly defined the ownerOnly
-    if (cmd.ownerOnly == undefined) return Logger.warn(`Commande non-chargée: indiquer si la commande est ownerOnly ↓\nFichier -> ${cmdFile}`);
-    
-    // Check if the command has a usage 
-    if (!cmd.usage) return Logger.warn(`Commande non-chargée: pas d'utilisation (usage) ↓\nFichier -> ${cmdFile}`);
-    
-    // Check if the command has examples
-    if (!cmd.examples) return Logger.warn(`Commande non-chargée: pas d'exemples (examples) ↓\nFichier -> ${cmdFile}`);
-    
-    // Check whether permission(s) is/are correct
-    cmd.permissions.forEach(permission => {
-      if (!permissionList.includes(permission)) {
-        return Logger.typo(`Commande non-chargée: erreur de typo sur la permission '${permission}' ↓\nFichier -> ${cmdFile}`);
-      }
-    })
+  // Check if the command has a category
+  if (!cmd.category) return Logger.warn(`Command not loaded: missing category ↓\nFile -> ${cmdFile}`);
 
-    client.commands.set(cmd.name, cmd);
-    Logger.command(`- ${cmd.name}`);
-  });
+  // Check that the permissions are an array
+  if (!Array.isArray(cmd.permissions))
+    return Logger.warn(`Command not loaded: permissions must be an array ↓\nFile -> ${cmdFile}`);
+
+  // Check if the command has correctly defined the ownerOnly
+  if (cmd.ownerOnly == undefined) return Logger.warn(`Command not loaded: ownerOnly must be set ↓\nFile -> ${cmdFile}`);
+
+  // Check if the command has a usage
+  if (!cmd.usage) return Logger.warn(`Command not loaded: missing usage ↓\nFile -> ${cmdFile}`);
+
+  // Check if the command has examples
+  if (!cmd.examples) return Logger.warn(`Command not loaded: missing examples ↓\nFile -> ${cmdFile}`);
+
+  // Check if the command has a handler
+  if (typeof cmd.runInteraction !== 'function')
+    return Logger.warn(`Command not loaded: missing runInteraction function ↓\nFile -> ${cmdFile}`);
+
+  // Check that every permission is a PermissionFlagsBits value
+  const invalidPermission = cmd.permissions.find((permission) => !permissionList.includes(permission));
+  if (invalidPermission !== undefined)
+    return Logger.typo(`Command not loaded: invalid permission '${invalidPermission}' ↓\nFile -> ${cmdFile}`);
+
+  client.commands.set(cmd.name, cmd);
+  Logger.command(`- ${cmd.name}`);
+}
+
+module.exports = (client) => {
+  for (const cmdFile of listCommandFiles()) loadCommand(client, cmdFile);
 };
-
-const permissionList = ['CREATE_INSTANT_INVITE', 'KICK_MEMBERS', 'BAN_MEMBERS', 'ADMINISTRATOR', 'MANAGE_CHANNELS', 'MANAGE_GUILD', 'ADD_REACTIONS', 'VIEW_AUDIT_LOG', 'PRIORITY_SPEAKER', 'STREAM', 'VIEW_CHANNEL', 'SEND_MESSAGES', 'SEND_TTS_MESSAGES', 'MANAGE_MESSAGES', 'EMBED_LINKS', 'ATTACH_FILES', 'READ_MESSAGE_HISTORY', 'MENTION_EVERYONE', 'USE_EXTERNAL_EMOJIS', 'VIEW_GUILD_INSIGHTS', 'CONNECT', 'SPEAK', 'MUTE_MEMBERS', 'DEAFEN_MEMBERS', 'MOVE_MEMBERS', 'USE_VAD', 'CHANGE_NICKNAME', 'MANAGE_NICKNAMES', 'MANAGE_ROLES', 'MANAGE_WEBHOOKS', 'MANAGE_EMOJIS_AND_STICKERS', 'USE_APPLICATION_COMMANDS', 'REQUEST_TO_SPEAK', 'MANAGE_EVENTS', 'MANAGE_THREADS', 'USE_PUBLIC_THREADS', 'CREATE_PUBLIC_THREADS', 'USE_PRIVATE_THREADS', 'CREATE_PRIVATE_THREADS', 'USE_EXTERNAL_STICKERS', 'SEND_MESSAGES_IN_THREADS', 'START_EMBEDDED_ACTIVITIES', 'MODERATE_MEMBERS'];
