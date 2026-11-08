@@ -10,23 +10,36 @@ module.exports = {
 
     try {
       const cmd = client.commands.get(interaction.commandName);
-      if (!cmd) return await reply(interaction, "Cette commande n'existe pas");
+      if (!cmd) return await refuse(interaction, 'unknown command', "Cette commande n'existe pas");
 
       // Commands are registered with `contexts: [InteractionContextType.Guild]`, but stale
       // registrations or unexpected payloads can still reach us without a guild member.
       if (!interaction.inGuild() || !interaction.memberPermissions)
-        return await reply(interaction, 'Cette commande ne peut être utilisée que sur un serveur');
+        return await refuse(interaction, 'outside a guild', 'Cette commande ne peut être utilisée que sur un serveur');
 
       if (cmd.ownerOnly && interaction.user.id !== config.ownerId)
-        return await reply(interaction, "La seule personne pouvant taper cette commande est l'owner du bot");
+        return await refuse(
+          interaction,
+          'owner only',
+          "La seule personne pouvant taper cette commande est l'owner du bot"
+        );
 
       if (!interaction.memberPermissions.has(cmd.permissions))
-        return await reply(
+        return await refuse(
           interaction,
+          'missing permissions',
           `Vous n'avez pas la/les permission(s) requise(s) (\`${new PermissionsBitField(cmd.permissions).toArray().join(', ')}\`) pour taper cette commande !`
         );
 
-      await cmd.runInteraction(client, interaction);
+      const label = `/${cmd.name} (${interaction.user.username} - ${interaction.user.id})`;
+      const startedAt = Date.now();
+      Logger.command(`${label} started in guild ${interaction.guildId}`);
+      try {
+        await cmd.runInteraction(client, interaction);
+      } finally {
+        // "finished", not "succeeded": commands catch their own database errors and answer with an embed
+        Logger.command(`${label} finished in ${Date.now() - startedAt} ms`);
+      }
     } catch (err) {
       Logger.error(`Error while running command '${interaction.commandName}':\n${err?.stack ?? err}`);
       try {
@@ -39,6 +52,13 @@ module.exports = {
     }
   }
 };
+
+function refuse(interaction, reason, content) {
+  Logger.warn(
+    `/${interaction.commandName} refused for ${interaction.user.username} - ${interaction.user.id}: ${reason}`
+  );
+  return reply(interaction, content);
+}
 
 // Sends an ephemeral message, whether or not the interaction has already been answered.
 function reply(interaction, content) {

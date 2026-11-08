@@ -22,7 +22,7 @@ Use the existing `utils/Logger.js` tags and add no dependency. Every line below 
 
 - Log each command before it runs, with `Logger.command`: command name, user (`username - id`) and guild ID.
 - Log the end of the command with its duration in ms. Say "finished", not "succeeded": commands catch their own database errors and answer with an embed, so reaching the end doesn't prove it worked. The service's `Logger.error` shows those failures.
-- Log each refusal with `Logger.warn` and its reason (unknown command, outside a guild, owner only, missing permissions).
+- Log each refusal with `Logger.warn`: command name, user (`username - id`) and reason (unknown command, outside a guild, owner only, missing permissions).
 
 **Daily announcement (`scheduler.js`)**
 
@@ -36,6 +36,7 @@ Use the existing `utils/Logger.js` tags and add no dependency. Every line below 
 - `Logger.warn`: `ShardDisconnect` (with the close code), `ShardReconnecting`, `Invalidated`, `Warn`.
 - `Logger.error`: `ShardError`, `Error`.
 - `Logger.client`: `ShardResume` (with the replayed event count), `GuildCreate` and `GuildDelete` (server name and ID).
+- In discord.js 14.28, `ShardDisconnect` only fires when the shard will not reconnect, so a recoverable loss of connection is logged by `ShardReconnecting`. `client.destroy()` also emits `ShardReconnecting`, so the listener stays silent once the client is being destroyed. `Invalidated` is never emitted by this version; its listener is kept for the day it is.
 - Do not listen to `Events.Debug`: it is too noisy for production.
 - In `index.js`, log REST rate limits with `client.rest.on(RESTEvents.RateLimited, ...)` and `Logger.warn`: route, limit, and wait time.
 
@@ -53,7 +54,7 @@ Use the existing `utils/Logger.js` tags and add no dependency. Every line below 
 **What not to log**
 
 - Never log birthday dates, the content of the `date` option, tokens or passwords. SQL queries stay development-only.
-- Log user IDs only where this task asks for them: the command lines (with the username, as the services already do) and the announcement lines (ID only).
+- Log user IDs only where this task asks for them: the command and refusal lines (with the username, as the services already do) and the announcement lines (ID only).
 
 **Documentation**
 
@@ -63,6 +64,6 @@ Use the existing `utils/Logger.js` tags and add no dependency. Every line below 
 
 - With the bot running locally and `NODE_ENV` set to anything but `development`, the logs show: startup (tag, servers, commands registered, database reachable), each command with its duration, each kind of refusal, and a clean stop on Ctrl+C.
 - A scheduled run with no birthday and a run with at least one birthday each log their start, count and summary.
-- Cutting the network briefly logs the disconnect and the reconnection.
+- Cutting the network briefly logs the loss of connection (`ShardReconnecting`) and the resume (`ShardResume`).
 - No log line contains a birthday date.
 - `npm test`, `npm run lint` and `npm run format:check` pass.

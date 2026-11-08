@@ -22,7 +22,8 @@ constants.js              Shared constants (birthday GIF URL)
 commands/<category>/*.js  Slash commands, one file per command; the folder name is the category
   birthday/               addbirthday, modifybirthday, removebirthday, viewbirthday
   utils/                  help, ping
-events/<emitter>/*.js     Discord event listeners (client/ready.js, client/interactionCreate.js)
+events/<emitter>/*.js     Discord event listeners. client/: ready, interactionCreate; logging only: shardDisconnect,
+                          shardReconnecting, shardResume, shardError, invalidated, warn, error, guildCreate, guildDelete
 services/                 Business logic as plain exported functions (birthdayService.js)
 models/                   Data access classes (birthday.js) and their re-export (index.js)
 utils/
@@ -61,7 +62,9 @@ Tests cover pure helpers only (`utils/date.js`); there are no tests that need Di
 
 ## Architecture
 
-**Startup ([index.js](index.js)):** loads `config`, creates the `Client` with only the `Guilds` intent (interactions and the REST fetches of users and channels need nothing more; add an intent only when a feature requires it), creates `client.commands` (a `Collection`), runs the `CommandUtil` and `EventUtil` handlers (synchronously, so they finish before login), sets up the `process` error handlers, and logs in. An `uncaughtException` is logged and then exits with code 1, relying on a process manager (pm2, systemd, Docker) to restart the bot; an `unhandledRejection` is logged with its stack trace and the bot keeps running. The `clientReady` handler then starts the daily cron job ([scheduler.js](scheduler.js)).
+**Startup ([index.js](index.js)):** loads `config`, creates the `Client` with only the `Guilds` intent (interactions and the REST fetches of users and channels need nothing more; add an intent only when a feature requires it), creates `client.commands` (a `Collection`), runs the `CommandUtil` and `EventUtil` handlers (synchronously, so they finish before login), sets up the REST rate-limit log and the `process` handlers, and logs in. An `uncaughtException` is logged and then exits with code 1, relying on a process manager (pm2, systemd, Docker) to restart the bot; an `unhandledRejection` is logged with its stack trace and the bot keeps running. The `clientReady` handler ([events/client/ready.js](events/client/ready.js)) logs the bot's tag, server count and loaded commands, registers the commands, checks the database with `SELECT 1`, then starts the daily cron job ([scheduler.js](scheduler.js)). A failed registration or database check is logged and doesn't stop the scheduler from starting.
+
+**Shutdown ([index.js](index.js)):** on `SIGINT` or `SIGTERM`, the signal is logged, `client.destroy()` runs and the process exits with code 0. A second identical signal kills the process through Node's default handler.
 
 **Commands:** `CommandUtil` reads `commands/<category>/*.js` (paths resolved from `__dirname`, so the bot starts from any working directory) and only loads a command if it exports all of these fields, logging a warning otherwise. A file that fails to `require` is logged and skipped:
 
@@ -92,7 +95,10 @@ On `clientReady`, the whole `client.commands` collection is registered as **glob
 - **New command:** add a file under `commands/<category>/` with every required field listed above. Set `category` to the folder name: `/help` groups the loaded commands by their `category` field, so a mismatch shows the command under the wrong heading.
 - **New event:** add a file under `events/<emitter>/` and set its `name` from the discord.js `Events` enum.
 - **Replies:** for ephemeral replies use `flags: MessageFlags.Ephemeral` (not `ephemeral: true`); to read the sent message use `withResponse: true` and `response.resource.message` (not `fetchReply`). Discord allows 3 seconds for the first answer, so a command that calls the Discord API or makes more than one database query before answering must call `deferReply` first and answer with `editReply` (which returns the `Message` directly). Use an `EmbedBuilder` with `.setTimestamp()` and a footer showing the invoking user. Colors: `Green` for success (✅), `Yellow` for warnings, `Red` for errors (❌). Wrap database calls in `try/catch` and reply with a generic French error embed when they fail.
-- **Logging:** use `utils/Logger.js` (`client`, `command`, `event`, `database`, `warn`, `error`, `typo`), not `console.log`.
+- **Logging:** use `utils/Logger.js` (`client`, `command`, `event`, `database`, `warn`, `error`, `typo`), not `console.log`. Log errors with `err?.stack ?? err`, not `${err}`.
+  - Logged in production: each command's start and end with its duration ("finished", not "succeeded", because commands catch their own database errors), each refusal with its reason, each daily run (date checked, birthdays found, announcements sent, sent and failed counts), Discord connection events, REST rate limits, startup and shutdown.
+  - Never logged: birthday dates, the content of the `date` option, tokens, passwords. SQL queries are development-only. Don't listen to `Events.Debug`, which is too noisy for production.
+  - User IDs appear only in the service result lines, the command and refusal lines (with the username) and the announcement lines (ID only).
 - **SQL:** always use `?` placeholders with a values array. Never build query strings by concatenation.
 - **Config:** add new settings to `config.js` and read them from `config`. Do not hard-code IDs or secrets.
 - **Git:**
