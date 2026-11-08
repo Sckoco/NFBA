@@ -7,7 +7,7 @@ async function getMemberBirthday(member) {
     const birthday = await Birthday.getMemberBirthday(member.id);
     return birthday;
   } catch (err) {
-    Logger.error(`Error retrieving birthday - ${err}`);
+    Logger.error(`Error retrieving birthday:\n${err?.stack ?? err}`);
     throw err;
   }
 }
@@ -24,7 +24,7 @@ async function createBirthday(user, { day, month }) {
       Logger.warn(`Birthday already exists (${user.username} - ${user.id})`);
       return false;
     }
-    Logger.error(`Error saving birthday - ${err}`);
+    Logger.error(`Error saving birthday:\n${err?.stack ?? err}`);
     throw err;
   }
 }
@@ -41,7 +41,7 @@ async function updateBirthday(user, { day, month }) {
     Logger.client(`Birthday updated! (${user.username} - ${user.id})`);
     return true;
   } catch (err) {
-    Logger.error(`Error updating birthday - ${err}`);
+    Logger.error(`Error updating birthday:\n${err?.stack ?? err}`);
     throw err;
   }
 }
@@ -57,7 +57,7 @@ async function removeBirthday(user) {
     Logger.client(`Birthday deleted! (${user.username} - ${user.id})`);
     return true;
   } catch (err) {
-    Logger.error(`Error deleting birthday - ${err}`);
+    Logger.error(`Error deleting birthday:\n${err?.stack ?? err}`);
     throw err;
   }
 }
@@ -67,7 +67,7 @@ async function getAllBirthdays() {
     const birthdays = await Birthday.getAllBirthdays();
     return birthdays;
   } catch (err) {
-    Logger.error(`Error retrieving all birthdays - ${err}`);
+    Logger.error(`Error retrieving all birthdays:\n${err?.stack ?? err}`);
     throw err;
   }
 }
@@ -78,7 +78,7 @@ async function getBirthdaysCelebratedOn(date) {
     const birthdays = await Birthday.getBirthdaysByDates(birthdaysCelebratedOn(date));
     return birthdays;
   } catch (err) {
-    Logger.error(`Error retrieving birthdays by date - ${err}`);
+    Logger.error(`Error retrieving birthdays by date:\n${err?.stack ?? err}`);
     throw err;
   }
 }

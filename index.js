@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits } = require('discord.js');
+const { Client, Collection, GatewayIntentBits, RESTEvents } = require('discord.js');
 const config = require('./config');
 const Logger = require('./utils/Logger');
 
@@ -12,6 +12,24 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 ['CommandUtil', 'EventUtil'].forEach((handler) => {
   require(`./utils/handlers/${handler}`)(client);
 });
+
+// `route` has its IDs and tokens masked by discord.js; `majorParameter` does not, so it must not be logged
+client.rest.on(RESTEvents.RateLimited, ({ method, route, limit, retryAfter }) => {
+  Logger.warn(`REST rate limit on ${method} ${route}: limit ${limit}, waiting ${retryAfter} ms`);
+});
+
+async function shutdown(signal) {
+  Logger.client(`Received ${signal}, shutting down`);
+  try {
+    await client.destroy();
+  } catch (err) {
+    Logger.error(`Error while destroying the client:\n${err?.stack ?? err}`);
+  }
+  process.exit(0);
+}
+
+// once: a repeated signal falls back to Node's default and kills a stuck shutdown
+['SIGINT', 'SIGTERM'].forEach((signal) => process.once(signal, () => shutdown(signal)));
 
 process.on('exit', (code) => {
   Logger.client(`Process exited with code ${code}`);
