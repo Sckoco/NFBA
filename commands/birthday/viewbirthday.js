@@ -72,14 +72,12 @@ async function replyWithPages(interaction, embed, pages) {
       .setDescription(pages[pageIndex])
       .setFooter({ text: `${footerText} • Page ${pageIndex + 1}/${pages.length}`, iconURL: footerIcon });
 
-  if (pages.length === 1) return interaction.reply({ embeds: [embed.setDescription(pages[0])] });
+  if (pages.length === 1) return interaction.editReply({ embeds: [embed.setDescription(pages[0])] });
 
-  const response = await interaction.reply({
+  const message = await interaction.editReply({
     embeds: [showPage()],
-    components: [pageButtons(pageIndex, pages.length)],
-    withResponse: true
+    components: [pageButtons(pageIndex, pages.length)]
   });
-  const message = response.resource.message;
 
   const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
@@ -127,6 +125,9 @@ module.exports = {
     }
   ],
   async runInteraction(client, interaction) {
+    // Fetching every stored user can take longer than the 3 seconds Discord allows for a first answer.
+    await interaction.deferReply();
+
     const target = interaction.options.getUser('target');
 
     const embed = new EmbedBuilder()
@@ -141,7 +142,7 @@ module.exports = {
         if (birthdays.length === 0) {
           embed.setColor('Yellow');
           embed.setDescription('Aucun anniversaire enregistré.');
-          return interaction.reply({ embeds: [embed] });
+          return interaction.editReply({ embeds: [embed] });
         }
         // Already sorted by date in SQL; Promise.all keeps that order.
         const lines = await Promise.all(
@@ -155,17 +156,17 @@ module.exports = {
       if (!birthday) {
         embed.setColor('Yellow');
         embed.setDescription(`Aucun anniversaire enregistré pour **${target.username}**.`);
-        return interaction.reply({ embeds: [embed] });
+        return interaction.editReply({ embeds: [embed] });
       }
       embed.setDescription(`**${target.username}** fête son anniversaire le \`${formatBirthday(birthday)}\``);
-      return interaction.reply({ embeds: [embed] });
+      return interaction.editReply({ embeds: [embed] });
     } catch {
       embed.setColor('Red');
       embed.setTitle('❌ Erreur lors de la recherche');
       embed.setDescription(
         `Une erreur s'est produite... Veuillez réessayer.\nSi l'erreur persiste, contactez un administrateur.`
       );
-      return interaction.reply({ embeds: [embed] });
+      return interaction.editReply({ embeds: [embed] });
     }
   }
 };
