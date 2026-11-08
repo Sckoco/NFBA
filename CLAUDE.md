@@ -9,7 +9,7 @@ NFBA is a Discord bot that stores server members' birthdays and posts a message 
 - **Runtime:** Node.js 22 (`engines.node: 22.x`), CommonJS modules.
 - **Main libraries:** discord.js v14 (slash commands), mysql2 (MySQL connection pool), node-cron (daily birthday check), dayjs, chalk v4 (logging).
 - **Language:** users see French text (replies, embeds, command descriptions). Code, comments and logs are in English.
-- **Ongoing work:** [TASKS.md](TASKS.md) lists every task with its state (Todo, Ongoing, Done) and a link to its details in `tasks/<NN>-<slug>.md`. TASKS.md holds only the number, the linked title, the state, the date the task was added and the date it was done (`YYYY-MM-DD`); everything else goes in the task file. Each task is one branch, one commit and one PR into `dev`. Branches are named `<issue-number>-<slug>` (for example `10-add-linting-formatting-and-ci`). Before changing code, check whether a task already covers the change, and stay inside the scope of the current task. When you start a task, set it to Ongoing; when its PR is merged, set it to Done and fill in the Done date. A new task gets the next number, a new file in `tasks/` and a row in TASKS.md with today's date as Added.
+- **Tasks:** [TASKS.md](TASKS.md) lists every task with its state (Todo or Done) and a link to its details in `tasks/<NN>-<slug>.md`. TASKS.md holds only the number, the linked title, the state, the date the task was added and the date it was done (`YYYY-MM-DD`); everything else goes in the task file. Before changing code, check whether a task already covers the change, and stay inside the scope of the current task. A new task gets the next number, a new file in `tasks/` and a row in TASKS.md with today's date as Added. Finished task files are kept. See **Git** under Coding conventions for how a task is delivered.
 - **Keep this file current:** whenever a code change makes something in CLAUDE.md wrong or no longer relevant (file layout, commands, architecture, conventions, known issues), update CLAUDE.md in the same change, even if CLAUDE.md is not in the task's file list. Remove what no longer applies rather than leaving it stale.
 
 ## Project structure
@@ -95,4 +95,10 @@ On `clientReady`, the whole `client.commands` collection is registered as **glob
 - **Logging:** use `utils/Logger.js` (`client`, `command`, `event`, `database`, `warn`, `error`, `typo`), not `console.log`.
 - **SQL:** always use `?` placeholders with a values array. Never build query strings by concatenation.
 - **Config:** add new settings to `config.js` and read them from `config`. Do not hard-code IDs or secrets.
-- **Git:** PRs target `dev`. `dev` is merged into `main` for releases.
+- **Git:**
+  - A new task (its file and its TASKS.md row) is committed on its own, directly to `dev`, as `Add task <NN>`.
+  - Each task is one branch from `dev` and one PR into `dev`. The branch is named `<NN>-<slug>` with the task number, not a GitHub issue number (for example `02-add-production-logs-for-observability`); tasks don't use GitHub issues.
+  - The branch can have as many commits as needed. If the plan changes, update the task file on the branch so it describes what was really done.
+  - Before opening the PR, set the task to Done in TASKS.md and fill in the Done date, so merging the PR is what completes the task. The PR description links the task file.
+  - PRs into `dev` are **squash-merged**, with the `Commit` title from the task file as the message, so each task is one commit on `dev`.
+  - For a release, `dev` is merged into `main` with a **regular merge commit** (never a squash, or the two branches diverge), then `main` is tagged.

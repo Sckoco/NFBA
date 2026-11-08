@@ -1,6 +1,6 @@
 # 01. Defer the `/viewbirthday` reply
 
-**Branch:** `<issue-number>-defer-the-viewbirthday-reply` · **Commit:** `Defer the viewbirthday reply`
+**Branch:** `01-defer-the-viewbirthday-reply` · **Commit:** `Defer the viewbirthday reply`
 **Files:** `commands/birthday/viewbirthday.js`
 
 ## Problem
