@@ -24,25 +24,47 @@ async function announceBirthday(client, channel, bday) {
   await channel.send({ embeds: [embed] });
 }
 
+// Returns the birthday channel, or null (with the reason logged) if it cannot be used.
+async function fetchBirthdayChannel(client) {
+  try {
+    const channel = await client.channels.fetch(config.birthdayChannelId);
+    if (channel?.isTextBased()) return channel;
+    Logger.error(`Birthday channel ${config.birthdayChannelId} not found or not text-based`);
+  } catch (err) {
+    Logger.error(`Could not fetch birthday channel ${config.birthdayChannelId}:\n${err?.stack ?? err}`);
+  }
+  return null;
+}
+
+function logSummary(sent, failed) {
+  Logger.client(`Birthday check finished: ${sent} sent, ${failed} failed`);
+}
+
 async function runBirthdayAnnouncement(client) {
   const now = dayjs().tz(config.timezone);
   const today = { day: now.date(), month: now.month() + 1, year: now.year() };
+  Logger.client(`Birthday check started for ${now.format('YYYY-MM-DD')}`);
+
   const birthdays = await birthdayService.getBirthdaysCelebratedOn(today);
-  if (birthdays.length === 0) return;
+  Logger.client(`${birthdays.length} birthday(s) found`);
+  if (birthdays.length === 0) return logSummary(0, 0);
 
-  const channel = await client.channels.fetch(config.birthdayChannelId).catch(() => null);
-  if (!channel || !channel.isTextBased()) {
-    Logger.error(`Birthday channel ${config.birthdayChannelId} not found or not text-based`);
-    return;
-  }
+  const channel = await fetchBirthdayChannel(client);
+  if (!channel) return logSummary(0, birthdays.length);
 
+  let sent = 0;
+  let failed = 0;
   for (const bday of birthdays) {
     try {
       await announceBirthday(client, channel, bday);
+      sent++;
+      Logger.client(`Birthday announced for user ${bday.user_id}`);
     } catch (err) {
-      Logger.error(`Error announcing birthday for user ${bday.user_id} - ${err}`);
+      failed++;
+      Logger.error(`Error announcing birthday for user ${bday.user_id}:\n${err?.stack ?? err}`);
     }
   }
+  logSummary(sent, failed);
 }
 
 // Starts the daily birthday job. Called from the ready handler, so the client is connected.
@@ -56,7 +78,7 @@ function startScheduler(client) {
       try {
         await runBirthdayAnnouncement(client);
       } catch (err) {
-        Logger.error(`Error while checking birthdays - ${err}`);
+        Logger.error(`Error while checking birthdays:\n${err?.stack ?? err}`);
       }
     },
     {
