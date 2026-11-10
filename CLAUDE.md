@@ -102,7 +102,7 @@ On `clientReady`, the whole `client.commands` collection is registered as **glob
 - **SQL:** always use `?` placeholders with a values array. Never build query strings by concatenation.
 - **Config:** add new settings to `config.js` and read them from `config`. Do not hard-code IDs or secrets.
 - **Git:**
-  - A new task (its file and its TASKS.md row) is committed on its own, directly to `dev`, as `Add task <NN>`.
+  - - A new task (its file and its TASKS.md row) goes in a commit of its own, directly on `dev`, with the message `Add task <NN>`.
   - Each task is one branch from `dev` and one PR into `dev`. The branch is named `<NN>-<slug>` with the task number, not a GitHub issue number (for example `02-add-production-logs-for-observability`); tasks don't use GitHub issues.
   - The branch can have as many commits as needed. If the plan changes, update the task file on the branch so it describes what was really done.
   - Before opening the PR, set the task to Done in TASKS.md and fill in the Done date, so merging the PR is what completes the task. The PR description links the task file.
