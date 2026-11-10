@@ -13,3 +13,4 @@ Each task links to a file in [tasks/](tasks/) with its details. State: **Todo** 
 | 07  | [Add custom birthday phrases](tasks/07-add-custom-birthday-phrases.md)                                            | Todo  | 2026-11-08 |            |
 | 08  | [Restrict `/ping` to administrators](tasks/08-restrict-ping-to-administrators.md)                                 | Todo  | 2026-11-08 |            |
 | 09  | [Show only the commands a user can run in `/help`](tasks/09-filter-help-by-user-access.md)                        | Todo  | 2026-11-08 |            |
+| 10  | [Migrate the project to TypeScript](tasks/10-migrate-to-typescript.md)                                            | Todo  | 2026-11-10 |            |
